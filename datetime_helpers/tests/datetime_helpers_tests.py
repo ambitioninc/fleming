@@ -266,7 +266,7 @@ class TestAddTimedelta(unittest.TestCase):
         values are aware.
         """
         aware_t = datetime.datetime(2013, 4, 1, tzinfo=pytz.utc)
-        ret = datetime_helpers.timedelta_tz(
+        ret = datetime_helpers.add_timedelta(
             aware_t, datetime.timedelta(days=1, minutes=1, seconds=1, microseconds=1))
         self.assertEquals(ret, datetime.datetime(2013, 4, 2, 0, 1, 1, 1, tzinfo=pytz.utc))
 
@@ -276,7 +276,7 @@ class TestAddTimedelta(unittest.TestCase):
         values are naive.
         """
         aware_t = datetime.datetime(2013, 4, 1, tzinfo=pytz.utc)
-        ret = datetime_helpers.timedelta_tz(
+        ret = datetime_helpers.add_timedelta(
             aware_t, datetime.timedelta(days=1, minutes=1, seconds=1, microseconds=1),
             return_naive=True)
         self.assertEquals(ret, datetime.datetime(2013, 4, 2, 0, 1, 1, 1))
@@ -419,105 +419,311 @@ class TestAddTimedelta(unittest.TestCase):
         self.assertEquals(ret, datetime.datetime(2013, 3, 15))
 
 
-class TestDatetimeFloor(unittest.TestCase):
+class TestFloor(unittest.TestCase):
     """
-    Tests the datetime_floor function.
+    Tests the floor function.
     """
-    def test_datetime_floor_year(self):
+    def test_naive_floor_year(self):
         """
-        Tests flooring a datetime to a year.
-        """
-        t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = datetime_helpers.datetime_floor(t, 'year')
-        self.assertEquals(t, datetime.datetime(2013, 1, 1))
-
-    def test_datetime_floor_month(self):
-        """
-        Tests flooring a datetime to a month.
+        Tests flooring a naive datetime to a year and returning an aware datetime.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = datetime_helpers.datetime_floor(t, 'month')
-        self.assertEquals(t, datetime.datetime(2013, 3, 1))
+        t = datetime_helpers.floor(t, 'year')
+        self.assertEquals(t, datetime.datetime(2013, 1, 1, tzinfo=pytz.utc))
 
-    def test_datetime_floor_week_stays_in_month(self):
+    def test_naive_floor_month(self):
         """
-        Tests flooring a datetime to a week where the month value remains the same.
+        Tests flooring a naive datetime to a month and returning an aware datetime.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = datetime_helpers.datetime_floor(t, 'week')
-        self.assertEquals(t, datetime.datetime(2013, 3, 4))
+        t = datetime_helpers.floor(t, 'month')
+        self.assertEquals(t, datetime.datetime(2013, 3, 1, tzinfo=pytz.utc))
 
-    def test_datetime_floor_week_goes_to_prev_month(self):
+    def test_naive_floor_week_stays_in_month(self):
         """
-        Tests flooring a datetime to a week where the month value goes backwards.
+        Tests flooring a naive datetime to a week where the month value remains the same.
+        Returns an aware datetime.
+        """
+        t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
+        t = datetime_helpers.floor(t, 'week')
+        self.assertEquals(t, datetime.datetime(2013, 3, 4, tzinfo=pytz.utc))
+
+    def test_naive_floor_week_goes_to_prev_month(self):
+        """
+        Tests flooring a naive datetime to a week where the month value goes backwards.
+        Return value is aware.
         """
         t = datetime.datetime(2013, 3, 1, 12, 23, 4, 40)
-        t = datetime_helpers.datetime_floor(t, 'week')
-        self.assertEquals(t, datetime.datetime(2013, 2, 25))
+        t = datetime_helpers.floor(t, 'week')
+        self.assertEquals(t, datetime.datetime(2013, 2, 25, tzinfo=pytz.utc))
 
-    def test_datetime_floor_day(self):
+    def test_naive_floor_day(self):
         """
-        Tests flooring a datetime to a day.
+        Tests flooring a naive datetime to a day. Return value is aware.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = datetime_helpers.datetime_floor(t, 'day')
+        t = datetime_helpers.floor(t, 'day')
+        self.assertEquals(t, datetime.datetime(2013, 3, 4, tzinfo=pytz.utc))
+
+    def test_naive_floor_day_return_naive(self):
+        """
+        Tests flooring a naive datetime to a day. Return value is naive.
+        """
+        t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
+        t = datetime_helpers.floor(t, 'day', return_naive=True)
         self.assertEquals(t, datetime.datetime(2013, 3, 4))
 
-    def test_datetime_floor_hour(self):
+    def test_naive_floor_hour(self):
         """
-        Tests flooring a datetime to an hour.
-        """
-        t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = datetime_helpers.datetime_floor(t, 'hour')
-        self.assertEquals(t, datetime.datetime(2013, 3, 4, 12))
-
-    def test_datetime_floor_minute(self):
-        """
-        Tests flooring a datetime to a minute.
+        Tests flooring a naive datetime to an hour. Return value is aware
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = datetime_helpers.datetime_floor(t, 'minute')
-        self.assertEquals(t, datetime.datetime(2013, 3, 4, 12, 23))
+        t = datetime_helpers.floor(t, 'hour')
+        self.assertEquals(t, datetime.datetime(2013, 3, 4, 12, tzinfo=pytz.utc))
 
-    def test_datetime_floor_second(self):
+    def test_naive_floor_minute(self):
         """
-        Tests flooring a datetime to a minute.
+        Tests flooring a naive datetime to a minute. Return value is aware.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = datetime_helpers.datetime_floor(t, 'second')
-        self.assertEquals(t, datetime.datetime(2013, 3, 4, 12, 23, 4))
+        t = datetime_helpers.floor(t, 'minute')
+        self.assertEquals(t, datetime.datetime(2013, 3, 4, 12, 23, tzinfo=pytz.utc))
 
-    def test_datetime_floor_invalid(self):
+    def test_naive_floor_second(self):
         """
-        Tests an invalid floor to datetime_floor.
+        Tests flooring a naive datetime to a minute. Return value is aware
+        """
+        t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
+        t = datetime_helpers.floor(t, 'second')
+        self.assertEquals(t, datetime.datetime(2013, 3, 4, 12, 23, 4, tzinfo=pytz.utc))
+
+    def test_floor_invalid(self):
+        """
+        Tests an invalid floor value.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
         with self.assertRaises(ValueError):
-            datetime_helpers.datetime_floor(t, 'invalid')
+            datetime_helpers.floor(t, 'invalid')
 
+    def test_aware_floor_year(self):
+        """
+        Tests flooring an aware datetime to a year and returning an aware datetime.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should not be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
+        ret = datetime_helpers.floor(t, 'year')
+        # Resulting time zone should not be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
+        self.assertEquals(ret, datetime.datetime(2013, 1, 1, tzinfo=t.tzinfo))
 
-class TestDatetimeFloorTz(unittest.TestCase):
-    """
-    Tests the datetime_floor_tz.
-    """
-    def test_datetime_floor_day_est_floor_to_prev_day(self):
+    def test_aware_floor_month(self):
         """
-        Tests that doing a datetime floor for a day in est that results in a floored
-        value for the previous day.
+        Tests flooring an aware datetime to a month and returning an aware datetime.
         """
-        utc_t = datetime.datetime(2013, 4, 1)
-        # Although the utc time is in April 1, it is still March 31 in EST
-        ret = datetime_helpers.datetime_floor_tz(utc_t, pytz.timezone('US/Eastern'), 'day')
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should not be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
+        ret = datetime_helpers.floor(t, 'month')
+        # Resulting time zone should not be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
+        self.assertEquals(ret, datetime.datetime(2013, 3, 1, tzinfo=t.tzinfo))
+
+    def test_aware_floor_week_stays_in_month(self):
+        """
+        Tests flooring an aware datetime to a week where the month value remains the same.
+        Returns an aware datetime.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should not be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
+        ret = datetime_helpers.floor(t, 'week')
+        # Resulting time zone should not be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
+        self.assertEquals(ret, datetime.datetime(2013, 3, 4, tzinfo=t.tzinfo))
+
+    def test_aware_floor_week_goes_to_prev_month(self):
+        """
+        Tests flooring an aware datetime to a week where the month value goes backwards.
+        Return value is aware.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 1, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should not be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
+        ret = datetime_helpers.floor(t, 'week')
+        # Resulting time zone should not be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
+        self.assertEquals(ret, datetime.datetime(2013, 2, 25, tzinfo=t.tzinfo))
+
+    def test_aware_floor_day(self):
+        """
+        Tests flooring an aware datetime to a day. Return value is aware.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should not be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
+        ret = datetime_helpers.floor(t, 'day')
+        # Resulting time zone should not be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
+        self.assertEquals(ret, datetime.datetime(2013, 3, 4, tzinfo=t.tzinfo))
+
+    def test_aware_floor_day_return_naive(self):
+        """
+        Tests flooring an aware datetime to a day. Return value is naive.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should not be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
+        ret = datetime_helpers.floor(t, 'day', return_naive=True)
+        self.assertEquals(ret, datetime.datetime(2013, 3, 4))
+
+    def test_aware_floor_hour(self):
+        """
+        Tests flooring an aware datetime to an hour. Return value is aware
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should not be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
+        ret = datetime_helpers.floor(t, 'hour')
+        # Resulting time zone should not be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
+        self.assertEquals(ret, datetime.datetime(2013, 3, 4, t.hour, tzinfo=t.tzinfo))
+
+    def test_aware_floor_minute(self):
+        """
+        Tests flooring an aware datetime to a minute. Return value is aware.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should not be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
+        ret = datetime_helpers.floor(t, 'minute')
+        # Resulting time zone should not be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
+        self.assertEquals(ret, datetime.datetime(2013, 3, 4, t.hour, 23, tzinfo=t.tzinfo))
+
+    def test_aware_floor_second(self):
+        """
+        Tests flooring an aware datetime to a minute. Return value is aware
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should not be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
+        ret = datetime_helpers.floor(t, 'second')
+        # Resulting time zone should not be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
+        self.assertEquals(ret, datetime.datetime(2013, 3, 4, t.hour, 23, 4, tzinfo=t.tzinfo))
+
+    def test_aware_floor_year_out_of_dst(self):
+        """
+        Tests flooring an aware datetime to a year and returning an aware datetime.
+        Floor starts in DST and goes out of DST.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 14, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(hours=1))
+        ret = datetime_helpers.floor(t, 'year')
+        # Resulting time zone should not be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
+        self.assertEquals(ret, datetime.datetime(2013, 1, 1, tzinfo=ret.tzinfo))
+
+    def test_aware_floor_month_out_of_dst(self):
+        """
+        Tests flooring an aware datetime to a month and returning an aware datetime.
+        Floor starts in DST and goes out of DST.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 3, 14, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(hours=1))
+        ret = datetime_helpers.floor(t, 'month')
+        # Resulting time zone should not be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
+        self.assertEquals(ret, datetime.datetime(2013, 3, 1, tzinfo=ret.tzinfo))
+
+    def test_aware_floor_month_into_dst(self):
+        """
+        Tests flooring an aware datetime to a month and returning an aware datetime.
+        Floor starts out of DST and goes into DST.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 11, 14, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
+        # Original time zone should not be in DST
+        self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(hours=0))
+        ret = datetime_helpers.floor(t, 'month')
+        # Resulting time zone should be in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(hours=1))
+        self.assertEquals(ret, datetime.datetime(2013, 11, 1, tzinfo=ret.tzinfo))
+
+    def test_naive_floor_within_tz_day(self):
+        """
+        Tests the flooring of a naive datetime to a day within another timezone.
+        """
+        t = datetime.datetime(2013, 4, 1)
+        # t is in midnight UTC, but it is still in the previous day for EST.
+        ret = datetime_helpers.floor(t, 'day', within_tz=pytz.timezone('US/Eastern'))
+        # The return value should be for the last day of the previous month, and the
+        # timezone should still be in UTC
         self.assertEquals(ret, datetime.datetime(2013, 3, 31, tzinfo=pytz.utc))
 
-    def test_datetime_floor_day_est_floor_to_same_day(self):
+    def test_naive_floor_within_tz_day_return_naive(self):
         """
-        Tests that doing a datetime floor for a day in est that results in a floored
-        value for the same day.
+        Tests the flooring of a naive datetime to a day within another timezone.
+        Returned value is naive.
         """
-        utc_t = datetime.datetime(2013, 4, 6, 5)
-        ret = datetime_helpers.datetime_floor_tz(utc_t, pytz.timezone('US/Eastern'), 'day')
-        self.assertEquals(ret, datetime.datetime(2013, 4, 6, tzinfo=pytz.utc))
+        t = datetime.datetime(2013, 4, 1)
+        # t is in midnight UTC, but it is still in the previous day for EST.
+        ret = datetime_helpers.floor(t, 'day', within_tz=pytz.timezone('US/Eastern'), return_naive=True)
+        # The return value should be for the last day of the previous month, and the
+        # timezone should still be in UTC
+        self.assertEquals(ret, datetime.datetime(2013, 3, 31))
+
+    def test_est_floor_within_cst_day(self):
+        """
+        Tests flooring of an EST time with respect to CST. Returns an aware datetime in EST.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 4, 1, 4), pytz.timezone('US/Eastern'))
+        # Verify it is midnight for eastern time
+        self.assertEquals(t.hour, 0)
+
+        # Floor the time to a day with respect to CST. Since CST is an hour behind, the day
+        # should be minus one
+        ret = datetime_helpers.floor(t, 'day', within_tz=pytz.timezone('US/Central'))
+        self.assertEquals(ret, datetime.datetime(2013, 3, 31, tzinfo=t.tzinfo))
+
+    def test_utc_floor_within_est_week(self):
+        """
+        Tests the case where it is the starting of a week in UTC but the floor is
+        performed relative to EST, meaning the result should be for the previous week.
+        """
+        t = datetime.datetime(2013, 4, 8, tzinfo=pytz.utc)
+        ret = datetime_helpers.floor(t, 'week', within_tz=pytz.timezone('US/Eastern'))
+        # The time should be a week earlier in UTC
+        self.assertEquals(ret, datetime.datetime(2013, 4, 1, tzinfo=pytz.utc))
+
+    def test_est_floor_within_utc_week(self):
+        """
+        Tests the case where it is the starting of a week in EST and the floor is
+        performed relative to UTC, meaning the result should be for the next week.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 11, 4, 4), pytz.timezone('US/Eastern'))
+        # Affirm that the time is 11 PM in EST
+        self.assertEquals(t.day, 3)
+        self.assertEquals(t.hour, 23)
+        ret = datetime_helpers.floor(t, 'week', within_tz=pytz.utc)
+        # The time should be a week later in EST since UTC was a week ahead
+        self.assertEquals(ret, datetime.datetime(2013, 11, 4, tzinfo=t.tzinfo))
 
 
 class TestUnixTime(unittest.TestCase):
@@ -551,101 +757,3 @@ class TestUnixTime(unittest.TestCase):
         t = datetime.datetime(2013, 12, 1, 2)
         ret = datetime_helpers.unix_time(t)
         self.assertEquals(ret, 1385863200)
-
-
-class TestUnixTimeMs(unittest.TestCase):
-    """
-    Tests the unix_time_ms function.
-    """
-    def test_unix_time_ms_epoch(self):
-        """
-        Tests the unix_time_ms function when the epoch is given.
-        """
-        t = datetime.datetime(1970, 1, 1)
-        ret = datetime_helpers.unix_time_ms(t)
-        self.assertEquals(ret, 0)
-
-    def test_unix_time_ms_arbitrary_one(self):
-        """
-        Tests unix_time_ms with an arbitrary time.
-        datetime(2013, 12, 1, 2) was confirmed to be equal to
-        1385863200 by epochconverter.com. Mutliple that by
-        1000 and you have milliseconds
-        """
-        t = datetime.datetime(2013, 12, 1, 2)
-        ret = datetime_helpers.unix_time_ms(t)
-        self.assertEquals(ret, 1385863200 * 1000)
-
-
-class TestUnixTimeTz(unittest.TestCase):
-    """
-    Tests the unix_time_tz function.
-    """
-    def test_unix_time_tz_epoch_est(self):
-        """
-        Tests the unix_time_tz function when the epoch is given in EST.
-        """
-        t = datetime.datetime(1970, 1, 1, 5)
-        ret = datetime_helpers.unix_time_tz(t, pytz.timezone('US/Eastern'))
-        self.assertEquals(ret, 0)
-
-    def test_unix_time_tz_arbitrary_dst(self):
-        """
-        Tests unix_time_tz with an arbitrary time.
-        datetime(2013, 4, 1, 2, 6) was confirmed to be equal to
-        1364796000 by epochconverter.com in the Eastern timezone.
-        This time is also in EST and has a four hour offset (from the utc time
-        of 2013, 4, 1, 2)
-        """
-        t = datetime.datetime(2013, 4, 1, 6)
-        ret = datetime_helpers.unix_time_tz(t, pytz.timezone('US/Eastern'))
-        self.assertEquals(ret, 1364781600)
-
-    def test_unix_time_tz_arbitrary_no_dst(self):
-        """
-        Tests unix_time_tz with an arbitrary time.
-        datetime(2013, 12, 1, 7) was confirmed to be equal to
-        1385863200 by epochconverter.com in the Eastern timezone.
-        This time is also in EST and has a five hour offset (from the utc time
-        of 2013, 12, 1, 2)
-        """
-        t = datetime.datetime(2013, 12, 1, 7)
-        ret = datetime_helpers.unix_time_tz(t, pytz.timezone('US/Eastern'))
-        self.assertEquals(ret, 1385863200)
-
-
-class TestUnixTimeTzMs(unittest.TestCase):
-    """
-    Tests the unix_time_tz_ms function.
-    """
-    def test_unix_time_tz_ms_epoch_est(self):
-        """
-        Tests the unix_time_tz_ms function when the epoch is given in EST.
-        """
-        t = datetime.datetime(1970, 1, 1, 5)
-        ret = datetime_helpers.unix_time_tz_ms(t, pytz.timezone('US/Eastern'))
-        self.assertEquals(ret, 0)
-
-    def test_unix_time_tz_ms_arbitrary_dst(self):
-        """
-        Tests unix_time_tz_ms with an arbitrary time.
-        datetime(2013, 4, 1, 2, 6) was confirmed to be equal to
-        1364796000 by epochconverter.com in the Eastern timezone.
-        This time is also in EST and has a four hour offset (from the utc time
-        of 2013, 4, 1, 2)
-        """
-        t = datetime.datetime(2013, 4, 1, 6)
-        ret = datetime_helpers.unix_time_tz_ms(t, pytz.timezone('US/Eastern'))
-        self.assertEquals(ret, 1364781600 * 1000)
-
-    def test_unix_time_tz_ms_arbitrary_no_dst(self):
-        """
-        Tests unix_time with an arbitrary time.
-        datetime(2013, 12, 1, 7) was confirmed to be equal to
-        1385863200 by epochconverter.com in the Eastern timezone.
-        This time is also in EST and has a five hour offset (from the utc time
-        of 2013, 12, 1, 2)
-        """
-        t = datetime.datetime(2013, 12, 1, 7)
-        ret = datetime_helpers.unix_time_tz_ms(t, pytz.timezone('US/Eastern'))
-        self.assertEquals(ret, 1385863200 * 1000)

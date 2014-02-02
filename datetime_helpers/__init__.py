@@ -172,22 +172,30 @@ def floor(dt, floor, within_tz=None, return_naive=False):
     # Localize it to time_zone if within_tz is specified
     loc_dt = convert_to_tz(dt, within_tz) if within_tz else dt
 
-    # Make a list of intervals in a datetime object.
-    intervals = ('year', 'month', 'day', 'hour', 'minute', 'second', 'microsecond')
-    # If we are flooring to a week, we are really flooring to a day and subtracting
-    # the weekdays. Make sure the actual floor happens for a day
-    interval_i = intervals.index(floor) if floor != 'week' else intervals.index('day')
-    # Do the datetime floor, copying all the necessary time intervals from the original
-    # time. Do a dst normalize since it could have crossed a DST border
-    loc_dt = dst_normalize(datetime.datetime(tzinfo=loc_dt.tzinfo, **{
-        interval: getattr(loc_dt, interval) for interval in intervals[:interval_i + 1]
-    }))
-    # If the original floor value was for a week, subtract the proper amount of days
-    if floor == 'week':
-        loc_dt = add_timedelta(loc_dt, datetime.timedelta(days=-dt.weekday))
+    # Floor the local time to its proper interval
+    if floor == 'year':
+        loc_dt = loc_dt.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    elif floor == 'month':
+        loc_dt = loc_dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    elif floor == 'day':
+        loc_dt = loc_dt.replace(hour=0, minute=0, second=0, microsecond=0)
+    elif floor == 'hour':
+        loc_dt = loc_dt.replace(minute=0, second=0, microsecond=0)
+    elif floor == 'minute':
+        loc_dt = loc_dt.replace(second=0, microsecond=0)
+    elif floor == 'second':
+        loc_dt = loc_dt.replace(microsecond=0)
+    elif floor == 'week':
+        # Floor a week to a day and then do proper arithmetic to get to the beginning of week
+        loc_dt = loc_dt.replace(hour=0, minute=0, second=0, microsecond=0)
+        loc_dt -= datetime.timedelta(days=loc_dt.weekday())
+    else:
+        raise ValueError('{0} is not a valid floor value'.format(floor))
 
-    # Convert it back to the original timezone if within_tz was specified
-    loc_dt = convert_to_tz(loc_dt, dt.tzinfo) if within_tz else loc_dt
+    # Set the timezone back to that of the original time. Do a DST normalization in case any
+    # DST boundaries were crossed
+    loc_dt = dst_normalize(loc_dt.replace(tzinfo=dt.tzinfo))
+
     # Return it, stripping the timezone information if return_naive
     return remove_tz_if_return_naive(loc_dt, return_naive)
 
