@@ -95,7 +95,7 @@ An aware datetime object that results from adding td to dt. The timezone of the 
     print dt
     2013-03-15 04:00:00+00:00
 
-    However, the hours in EST still reflect midnight
+    # However, the hours in EST still reflect midnight
     print datetime_helpers.convert_to_tz(dt, pytz.timezone('US/Eastern'))
     2013-03-15 00:00:00-04:00
 

@@ -176,7 +176,7 @@ def add_timedelta(dt, td, within_tz=None, return_naive=False):
         print dt
         2013-03-15 04:00:00+00:00
 
-        However, the hours in EST still reflect midnight
+        # However, the hours in EST still reflect midnight
         print datetime_helpers.convert_to_tz(dt, pytz.timezone('US/Eastern'))
         2013-03-15 00:00:00-04:00
     """
