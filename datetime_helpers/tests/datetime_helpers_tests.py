@@ -757,3 +757,82 @@ class TestUnixTime(unittest.TestCase):
         t = datetime.datetime(2013, 12, 1, 2)
         ret = datetime_helpers.unix_time(t)
         self.assertEquals(ret, 1385863200)
+
+    def test_unix_time_return_ms(self):
+        """
+        Tests unix_time when returning milliseconds. Uses the
+        same values from test_unix_time_arbitrary_two.
+        """
+        t = datetime.datetime(2013, 12, 1, 2)
+        ret = datetime_helpers.unix_time(t, return_ms=True)
+        self.assertEquals(ret, 1385863200 * 1000)
+
+    def test_unix_time_aware_arbitrary(self):
+        """
+        Tests unix time for an aware time.
+        datetime(2013, 12, 1, 2) in EST was confirmed to be
+        equal to 1385881200 by epochconverter.com.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 12, 1, 7), pytz.timezone('US/Eastern'))
+        self.assertEquals(t.hour, 2)
+        ret = datetime_helpers.unix_time(t)
+        self.assertEquals(ret, 1385881200)
+
+    def test_unix_time_aware_arbitrary_ms(self):
+        """
+        Tests unix time for an aware time.
+        datetime(2013, 12, 1, 2) in EST was confirmed to be
+        equal to 1385881200 by epochconverter.com. Return value is
+        in milliseconds.
+        """
+        t = datetime_helpers.convert_to_tz(
+            datetime.datetime(2013, 12, 1, 7), pytz.timezone('US/Eastern'))
+        self.assertEquals(t.hour, 2)
+        ret = datetime_helpers.unix_time(t, return_ms=True)
+        self.assertEquals(ret, 1385881200 * 1000)
+
+    def test_unix_time_naive_within_tz(self):
+        """
+        Tests that a naive UTC time is converted relative to an EST tz.
+        This means that when converting the time back, the time values are
+        correct for the EST time zone.
+        """
+        t = datetime.datetime(2013, 12, 1, 5)
+        ret = datetime_helpers.unix_time(t, within_tz=pytz.timezone('US/Eastern'))
+        self.assertEquals(ret, 1385856000)
+        # Convert it back to a datetime objects. The values should be for midnight
+        # since it was an EST time
+        t = datetime.datetime.fromtimestamp(ret)
+        self.assertEquals(t.hour, 0)
+        self.assertEquals(t.day, 1)
+
+    def test_unix_time_aware_within_tz(self):
+        """
+        Tests that an aware UTC time is converted relative to an EST tz.
+        This means that when converting the time back, the time values are
+        correct for the EST time zone.
+        """
+        t = datetime.datetime(2013, 12, 1, 5, tzinfo=pytz.utc)
+        ret = datetime_helpers.unix_time(t, within_tz=pytz.timezone('US/Eastern'))
+        self.assertEquals(ret, 1385856000)
+        # Convert it back to a datetime objects. The values should be for midnight
+        # since it was an EST time
+        t = datetime.datetime.fromtimestamp(ret)
+        self.assertEquals(t.hour, 0)
+        self.assertEquals(t.day, 1)
+
+    def test_unix_time_aware_within_tz_return_ms(self):
+        """
+        Tests that an aware UTC time is converted relative to an EST tz.
+        This means that when converting the time back, the time values are
+        correct for the EST time zone. Return is in milliseconds
+        """
+        t = datetime.datetime(2013, 12, 1, 5, tzinfo=pytz.utc)
+        ret = datetime_helpers.unix_time(t, within_tz=pytz.timezone('US/Eastern'), return_ms=True)
+        self.assertEquals(ret, 1385856000 * 1000)
+        # Convert it back to a datetime objects. The values should be for midnight
+        # since it was an EST time
+        t = datetime.datetime.fromtimestamp(ret / 1000)
+        self.assertEquals(t.hour, 0)
+        self.assertEquals(t.day, 1)

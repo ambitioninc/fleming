@@ -220,6 +220,7 @@ def unix_time(dt, within_tz=None, return_ms=False):
     """
     epoch = datetime.datetime.utcfromtimestamp(0)
     offset = convert_to_tz(dt, within_tz).utcoffset().total_seconds() if within_tz else 0
-    dt = dt.replace(tzinfo=None)
-    unix_time = (dt - epoch + offset).total_seconds()
+    # Convert the timezone to UTC for arithmetic and make it naive
+    dt = convert_to_tz(dt, pytz.utc).replace(tzinfo=None)
+    unix_time = (dt - epoch).total_seconds() + offset
     return int(unix_time * 1000 if return_ms else unix_time)
