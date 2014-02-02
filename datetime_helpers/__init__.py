@@ -115,7 +115,7 @@ def dst_normalize(dt):
 def add_timedelta(dt, td, within_tz=None, return_naive=False):
     """Adds a timedelta to a datetime. Can add timedeltas relative to a timezone.
 
-    Give a naive or aware datetime dt, add a timedelta td to it and return it. If
+    Given a naive or aware datetime dt, add a timedelta td to it and return it. If
     within_tz is specified, the datetime arithmetic happens with regard to the timezone.
     Proper measures are used to ensure that datetime arithmetic across a DST border
     is handled properly.
