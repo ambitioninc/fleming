@@ -13,7 +13,7 @@ def attach_tz_if_none(t, tz):
     return tz.localize(t) if t.tzinfo is None else t
 
 
-def convert_2_tz(t, tz):
+def convert_to_tz(t, tz):
     """
     Given a time t, convert it to time zone convert_tz.
     """
@@ -33,40 +33,19 @@ def dst_normalize(t, tz):
     t = 2013/03/11:05:00:00 EDT.
     Note that none of its actual time values changes other than its time zone.
     """
-    localized_time = convert_2_tz(t, tz)
+    localized_time = convert_to_tz(t, tz)
     return localized_time.replace(
         year=t.year, month=t.month, day=t.day, hour=t.hour, minute=t.minute, second=t.second,
         microsecond=t.microsecond)
 
 
-def dst_time_delta(t, time_zone, weeks=0, days=0, hours=0, timedelta=None):
-    """
-    Given a time t (assumed to originally be in UTC), it's time zone, and a time delta, add the
-    time delta in t's local time zone and return the proper value in UTC. This allows time deltas to
-    occur across dst transitions.
-    """
-    delta = timedelta or datetime.timedelta(0)
-    # Make sure t is aware in UTC
-    utc_t = pytz.utc.localize(t) if t.tzinfo is None else t
-    # Localize it to time_zone
-    loc_t = time_zone.normalize(utc_t.astimezone(time_zone))
-    # Add the time delta
-    loc_t += datetime.timedelta(weeks=weeks, days=days, hours=hours)
-    loc_t += delta
-    # Normalize the time delta depending on if it crosses a dst transition
-    loc_t = dst_normalize(loc_t, time_zone)
-    # Convert it back to UTC and return it
-    utc_t = pytz.utc.normalize(loc_t.astimezone(pytz.utc))
-    return utc_t
-
-
 def timedelta_tz(t, tz, td):
     """
-    Given a time t (assumed to originally be in UTC), it's time zone tz, and a time delta td, add the
-    time delta in t's local time zone and return the proper value in UTC. This allows time deltas to
+    Given a time t (assumed to be in UTC), the time zone tz in which to perform the arithmetic, and a
+    time delta td, add the time delta in the timezone of tz and return the delta in UTC. This allows time deltas to
     occur across dst transitions.
     """
-    # Make sure t is aware in UTC
+    # Make sure it is aware in UTC
     t = attach_tz_if_none(t, pytz.utc)
     # Localize it to time_zone
     t = convert_to_tz(t, tz)
@@ -99,15 +78,16 @@ def datetime_floor(t, floor):
     elif floor == 'week':
         t = t.replace(hour=0, minute=0, second=0, microsecond=0)
         return t - datetime.timedelta(days=t.weekday())
-    return t
+    else:
+        raise ValueError('Invalid value {0} for floor argument'.format(floor))
 
 
 def datetime_floor_tz(t, tz, floor):
     """
-    Floors a time in a different time zone. Returns a datetime object in the the time zone of t, but
-    relative to tz.
+    Floors a utc time in a different time zone. Returns a datetime object in UTC, but
+    floored relative to tz.
     """
-    return datetime_floor(convert_2_tz(t, tz), floor).replace(tzinfo=t.tzinfo)
+    return datetime_floor(convert_to_tz(t, tz), floor).replace(tzinfo=pytz.utc)
 
 
 def unix_time(t):
@@ -118,6 +98,7 @@ def unix_time(t):
     :return: :int: unix timestamp in seconds
     """
     epoch = datetime.datetime.utcfromtimestamp(0)
+    t = t.replace(tzinfo=None)
     delta = t - epoch
     return int(delta.total_seconds())
 
@@ -133,7 +114,8 @@ def unix_time_tz(t, tz):
     """
     Converts a datetime object to unix timestamp (in seconds) for the given time zone.
     """
-    return unix_time(convert_to_tz(t, tz))
+    loc_t = convert_to_tz(t, tz)
+    return unix_time(t) + int(loc_t.utcoffset().total_seconds())
 
 
 def unix_time_tz_ms(t, tz):
