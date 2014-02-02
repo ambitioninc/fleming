@@ -47,58 +47,121 @@ class TestAttachTzIfNone(unittest.TestCase):
         self.assertEquals(ret.tzinfo, pytz.timezone('US/Eastern'))
 
 
+class TestRemoveTzIfReturnNaive(unittest.TestCase):
+    """
+    Tests the remove_tz_if_return_naive function.
+    """
+    def test_with_naive_dt_true(self):
+        """
+        Tests removing the tz of a datetime object with no timezone and
+        return_naive set to True.
+        """
+        naive_t = datetime.datetime(2013, 2, 1, 12)
+        ret = datetime_helpers.remove_tz_if_return_naive(naive_t, True)
+        self.assertEquals(ret, datetime.datetime(2013, 2, 1, 12))
+
+    def test_with_naive_dt_false(self):
+        """
+        Tests removing the tz of a datetime object with no timezone and
+        return_naive set to False.
+        """
+        naive_t = datetime.datetime(2013, 2, 1, 12)
+        ret = datetime_helpers.remove_tz_if_return_naive(naive_t, False)
+        self.assertEquals(ret, datetime.datetime(2013, 2, 1, 12))
+
+    def test_with_aware_dt_true(self):
+        """
+        Tests removing the tz of a datetime object with a timezone and
+        return_naive set to True.
+        """
+        aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc)
+        ret = datetime_helpers.remove_tz_if_return_naive(aware_t, True)
+        self.assertEquals(ret, datetime.datetime(2013, 2, 1, 12))
+
+    def test_with_aware_dt_false(self):
+        """
+        Tests removing the tz of a datetime object with a timezone and
+        return_naive set to False.
+        """
+        aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc)
+        ret = datetime_helpers.remove_tz_if_return_naive(aware_t, False)
+        self.assertEquals(ret, datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc))
+
+
 class TestConvertToTz(unittest.TestCase):
     """
     Tests the convert_to_tz function.
     """
-    def test_convert_naive_utc_to_est(self):
+    def test_convert_naive_utc_to_est_return_aware(self):
         """
-        Tests conversion of naive datetime (assumed to be UTC) to aware EST datetime.
+        Tests conversion of naive datetime (assumed to be UTC) to aware EST datetime
+        where the return value is aware.
         """
         naive_t = datetime.datetime(2013, 2, 1, 12)
         ret = datetime_helpers.convert_to_tz(naive_t, pytz.timezone('US/Eastern'))
         # In this time, eastern standard time is 5 hours before UTC
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 7, tzinfo=pytz.timezone('US/Eastern')))
 
-    def test_aware_utc_to_est(self):
+    def test_aware_utc_to_est_return_aware(self):
         """
-        Tests an aware datetime that is UTC to EST.
+        Tests an aware datetime that is UTC to EST where the return value is aware.
         """
         aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc)
         ret = datetime_helpers.convert_to_tz(aware_t, pytz.timezone('US/Eastern'))
         # In this time, eastern standard time is 5 hours before UTC
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 7, tzinfo=pytz.timezone('US/Eastern')))
 
-    def test_aware_est_to_cst(self):
+    def test_aware_est_to_cst_return_aware(self):
         """
-        Tests converting an aware datetime in EST to CST.
+        Tests converting an aware datetime in EST to CST where the return value is aware.
         """
         aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.timezone('US/Eastern'))
         ret = datetime_helpers.convert_to_tz(aware_t, pytz.timezone('US/Central'))
         # Central time zone is one hour behind eastern
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 11, tzinfo=pytz.timezone('US/Central')))
 
+    def test_convert_naive_utc_to_est_return_naive(self):
+        """
+        Tests conversion of naive datetime (assumed to be UTC) to aware EST datetime where the
+        return value is naive.
+        """
+        naive_t = datetime.datetime(2013, 2, 1, 12)
+        ret = datetime_helpers.convert_to_tz(naive_t, pytz.timezone('US/Eastern'), return_naive=True)
+        # In this time, eastern standard time is 5 hours before UTC
+        self.assertEquals(ret, datetime.datetime(2013, 2, 1, 7))
+
+    def test_aware_utc_to_est_return_naive(self):
+        """
+        Tests an aware datetime that is UTC to EST where the return value is naive.
+        """
+        aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc)
+        ret = datetime_helpers.convert_to_tz(aware_t, pytz.timezone('US/Eastern'), return_naive=True)
+        # In this time, eastern standard time is 5 hours before UTC
+        self.assertEquals(ret, datetime.datetime(2013, 2, 1, 7))
+
+    def test_aware_est_to_cst_return_naive(self):
+        """
+        Tests converting an aware datetime in EST to CST where the return value is naive.
+        """
+        aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.timezone('US/Eastern'))
+        ret = datetime_helpers.convert_to_tz(aware_t, pytz.timezone('US/Central'), return_naive=True)
+        # Central time zone is one hour behind eastern
+        self.assertEquals(ret, datetime.datetime(2013, 2, 1, 11))
+
 
 class TestDstNormalize(unittest.TestCase):
     """
-    Tests the dst_normalize function.
+    Tests the dst_normalize function. Note that this function is an internal function and expects
+    aware datetimes to be passed to it (as compared to the user-facing functions that can have
+    naive datetimes passed as arguments). We only test the case of passing aware datetimes.
     """
-    def test_no_change_in_tz_naive(self):
-        """
-        Tests the case where the time zone does not change because of a daylight savings time transition.
-        Tests a naive datetime being sent to the function (it is assumed to be utc if naive).
-        """
-        naive_t = datetime.datetime(2013, 4, 2)
-        ret = datetime_helpers.dst_normalize(naive_t, pytz.utc)
-        self.assertEquals(ret, datetime.datetime(2013, 4, 2, tzinfo=pytz.utc))
-
     def test_no_change_in_tz_aware(self):
         """
         Tests the case where the time given is already aware. Uses a timezone that will not change because
         of daylight savings time.
         """
         aware_t = datetime.datetime(2013, 4, 2, tzinfo=pytz.utc)
-        ret = datetime_helpers.dst_normalize(aware_t, pytz.utc)
+        ret = datetime_helpers.dst_normalize(aware_t)
         self.assertEquals(ret, datetime.datetime(2013, 4, 2, tzinfo=pytz.utc))
 
     def test_change_in_tz_into_dst(self):
@@ -118,7 +181,7 @@ class TestDstNormalize(unittest.TestCase):
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # Do a DST normalization. The resulting time zone should be in DST, but none of the
         # time values in original time should have changed
-        ret = datetime_helpers.dst_normalize(aware_t, pytz.timezone('US/Eastern'))
+        ret = datetime_helpers.dst_normalize(aware_t)
         # Verify the time zone of the returned is in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(hours=1))
         # Verify that all of the time values are correct (i.e. verify an extra hour wasn't added
@@ -144,7 +207,7 @@ class TestDstNormalize(unittest.TestCase):
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(hours=1))
         # Do a DST normalization. The resulting time zone should not be in DST, but none of the
         # time values in original time should have changed
-        ret = datetime_helpers.dst_normalize(aware_t, pytz.timezone('US/Eastern'))
+        ret = datetime_helpers.dst_normalize(aware_t)
         # Verify the time zone of the returned is not in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         # Verify that all of the time values are correct (i.e. verify an extra hour wasn't added
@@ -166,71 +229,194 @@ class TestDstNormalize(unittest.TestCase):
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # Do a DST normalization. The resulting time zone should not be in DST, and none of the
         # time values in original time should have changed
-        ret = datetime_helpers.dst_normalize(aware_t, pytz.timezone('US/Eastern'))
+        ret = datetime_helpers.dst_normalize(aware_t)
         # Verify the time zone of the returned is not in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         # Verify that all of the time values are correct
         self.assertEquals(ret, datetime.datetime(2013, 1, 14, tzinfo=ret.tzinfo))
 
 
-class TestTimeDeltaTz(unittest.TestCase):
+class TestAddTimedelta(unittest.TestCase):
     """
-    Tests the timedelta_tz function.
+    Tests the add_timedelta function.
     """
-    def test_utc_tz_naive(self):
+    def test_naive_within_no_tz_return_aware(self):
         """
-        Tests time delta arithmetic when the time zone is UTC and the
-        input is a naive time
+        Tests time delta arithmetic when the original time is naive and timezone
+        arithmetic happens within original timezone. The returned value is
+        also aware
         """
         naive_t = datetime.datetime(2013, 4, 1)
-        ret = datetime_helpers.timedelta_tz(naive_t, pytz.utc, datetime.timedelta(days=2))
+        ret = datetime_helpers.add_timedelta(naive_t, datetime.timedelta(days=2))
         self.assertEquals(ret, datetime.datetime(2013, 4, 3, tzinfo=pytz.utc))
 
-    def test_utc_tz_aware(self):
+    def test_naive_within_no_tz_return_naive(self):
         """
-        Tests time delta arithmetic when the time zone is UTC and input is aware.
+        Tests time delta arithmetic when the original time is naive and timezone
+        arithmetic happens within original timezone. The returned value is
+        also naive.
+        """
+        naive_t = datetime.datetime(2013, 4, 1)
+        ret = datetime_helpers.add_timedelta(naive_t, datetime.timedelta(days=2), return_naive=True)
+        self.assertEquals(ret, datetime.datetime(2013, 4, 3))
+
+    def test_aware_within_no_tz_return_aware(self):
+        """
+        Tests time delta arithmetic when the input is aware and there is no within_tz. Returned
+        values are aware.
         """
         aware_t = datetime.datetime(2013, 4, 1, tzinfo=pytz.utc)
         ret = datetime_helpers.timedelta_tz(
-            aware_t, pytz.utc, datetime.timedelta(days=1, minutes=1, seconds=1, microseconds=1))
-        self.assertEquals(
-            ret, datetime.datetime(2013, 4, 2, 0, 1, 1, 1, tzinfo=pytz.utc))
+            aware_t, datetime.timedelta(days=1, minutes=1, seconds=1, microseconds=1))
+        self.assertEquals(ret, datetime.datetime(2013, 4, 2, 0, 1, 1, 1, tzinfo=pytz.utc))
 
-    def test_est_no_dst_transition(self):
+    def test_aware_within_no_tz_return_naive(self):
         """
-        Tests timedelta arithmetic in EST when there is no DST transition.
+        Tests time delta arithmetic when the input is aware and there is no within_tz. Returned
+        values are naive.
         """
         aware_t = datetime.datetime(2013, 4, 1, tzinfo=pytz.utc)
-        # Convert into EST when doing the time delta
-        ret = datetime_helpers.timedelta_tz(aware_t, pytz.timezone('US/Eastern'), datetime.timedelta(days=1))
-        # Return a time that is back in its original UTC form
-        self.assertEquals(ret, datetime.datetime(2013, 4, 2, tzinfo=pytz.utc))
+        ret = datetime_helpers.timedelta_tz(
+            aware_t, datetime.timedelta(days=1, minutes=1, seconds=1, microseconds=1),
+            return_naive=True)
+        self.assertEquals(ret, datetime.datetime(2013, 4, 2, 0, 1, 1, 1))
 
-    def test_est_transition_into_dst(self):
+    def test_aware_within_no_tz_return_aware_dst_cross(self):
         """
-        Tests a time that will cross a DST boundary in EST.
+        Tests time delta arithmetic when the input is aware and there is no within_tz. Returned
+        values are aware. Tests the case where arithmetic happens across a dst transition.
         """
-        # Start the time outside of DST in EST. This time is in UTC since the function
-        # expects UTC times. Note that DST is Mar 10, 2013
-        aware_t = datetime.datetime(2013, 3, 7)
-        # Do a time delta of a week so that it will cross the DST border.
-        ret = datetime_helpers.timedelta_tz(aware_t, pytz.timezone('US/Eastern'), datetime.timedelta(weeks=1))
-        # The return value should be a week later, however the hour is one less in UTC since EST went
-        # an hour ahead
-        self.assertEquals(ret, datetime.datetime(2013, 3, 13, 23, tzinfo=pytz.utc))
+        # Create an aware datetime that is not in DST
+        aware_t = datetime_helpers.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
+        # Assert that it isn't in DST
+        self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
+        # Assert the values are midnight for EST
+        self.assertEquals(aware_t, datetime.datetime(2013, 3, 1, tzinfo=pytz.timezone('US/Eastern')))
 
-    def test_est_transition_out_of_dst(self):
+        # Add a timedelta across the DST transition (Mar 10)
+        ret = datetime_helpers.add_timedelta(aware_t, datetime.timedelta(weeks=2))
+        # Verify the time zone is now in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(hours=1))
+        # Verify the time is midnight two weeks later
+        self.assertEquals(ret, datetime.datetime(2013, 3, 15, tzinfo=ret.tzinfo))
+
+    def test_aware_within_no_tz_return_naive_dst_cross(self):
         """
-        Tests a time that will cross a DST boundary in EST.
+        Tests time delta arithmetic when the input is aware and there is no within_tz. Returned
+        values are naive. Tests the case where arithmetic happens across a dst transition.
         """
-        # Start the time in DST in EST. This time is in UTC since the function
-        # expects UTC times. Note that DST ends on Nov 3, 2013
-        aware_t = datetime.datetime(2013, 10, 31)
-        # Do a time delta of a week so that it will cross the DST border.
-        ret = datetime_helpers.timedelta_tz(aware_t, pytz.timezone('US/Eastern'), datetime.timedelta(weeks=1))
-        # The return value should be a week later, however the hour is one more in UTC since EST went
-        # an hour behind
-        self.assertEquals(ret, datetime.datetime(2013, 11, 7, 1, tzinfo=pytz.utc))
+        # Create an aware datetime that is not in DST
+        aware_t = datetime_helpers.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
+        # Assert that it isn't in DST
+        self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
+        # Assert the values are midnight for EST
+        self.assertEquals(aware_t, datetime.datetime(2013, 3, 1, tzinfo=pytz.timezone('US/Eastern')))
+
+        # Add a timedelta across the DST transition (Mar 10)
+        ret = datetime_helpers.add_timedelta(aware_t, datetime.timedelta(weeks=2), return_naive=True)
+        # Verify the time is midnight two weeks later and is naive
+        self.assertEquals(ret, datetime.datetime(2013, 3, 15))
+
+    def test_naive_within_tz_return_aware_dst_cross(self):
+        """
+        Tests time delta arithmetic when the input is naive and there is arithmetic within another timezone.
+        Returned values are aware. Tests the case where arithmetic happens across a dst transition.
+        """
+        # Create a naive datetime assumed to be in UTC
+        naive_t = datetime.datetime(2013, 3, 1, 5)
+
+        # Add a timedelta across the DST transition for EST (Mar 10)
+        ret = datetime_helpers.add_timedelta(
+            naive_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Eastern'))
+        # Verify the time is midnight two weeks later in UTC. Note that the original hour has changed
+        # since we crossed the DST boundary in EST
+        self.assertEquals(ret, datetime.datetime(2013, 3, 15, 4, tzinfo=pytz.utc))
+
+    def test_naive_within_tz_return_naive_dst_cross(self):
+        """
+        Tests time delta arithmetic when the input is naive and there is arithmetic within another timezone.
+        Returned values are naive. Tests the case where arithmetic happens across a dst transition.
+        """
+        # Create a naive datetime assumed to be in UTC
+        naive_t = datetime.datetime(2013, 3, 1, 5)
+
+        # Add a timedelta across the DST transition for EST (Mar 10)
+        ret = datetime_helpers.add_timedelta(
+            naive_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Eastern'), return_naive=True)
+        # Verify the time is midnight two weeks later in UTC. Note that the original hour has changed
+        # since we crossed the DST boundary in EST
+        self.assertEquals(ret, datetime.datetime(2013, 3, 15, 4))
+
+    def test_aware_within_tz_return_aware_dst_cross(self):
+        """
+        Tests time delta arithmetic when the input is aware and there is arithmetic within another timezone.
+        Returned values are aware. Tests the case where arithmetic happens across a dst transition.
+        """
+        # Create an aware datetime that is not in DST for EST
+        aware_t = datetime_helpers.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.utc)
+
+        # Add a timedelta across the DST transition (Mar 10) within EST
+        ret = datetime_helpers.add_timedelta(
+            aware_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Eastern'))
+        # Verify the time is midnight two weeks later in UTC. Note that the hour changes since it happened
+        # across an EST DST boundary
+        self.assertEquals(ret, datetime.datetime(2013, 3, 15, 4, tzinfo=pytz.utc))
+
+    def test_aware_within_tz_return_naive_dst_cross(self):
+        """
+        Tests time delta arithmetic when the input is aware and there is arithmetic within another timezone.
+        Returned values are naive. Tests the case where arithmetic happens across a dst transition.
+        """
+        # Create an aware datetime that is not in DST for EST
+        aware_t = datetime_helpers.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.utc)
+
+        # Add a timedelta across the DST transition (Mar 10) within EST
+        ret = datetime_helpers.add_timedelta(
+            aware_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Eastern'), return_naive=True)
+        # Verify the time is midnight two weeks later in UTC. Note that the hour changes since it happened
+        # across an EST DST boundary
+        self.assertEquals(ret, datetime.datetime(2013, 3, 15, 4))
+
+    def test_aware_est_within_cst_return_aware_dst_cross(self):
+        """
+        Tests time delta arithmetic when the input is aware and there is arithmetic within another timezone.
+        Returned values are aware. Tests the case where arithmetic happens across a dst transition.
+        """
+        # Create an aware datetime that is not in DST
+        aware_t = datetime_helpers.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
+        # Assert that it isn't in DST
+        self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
+        # Assert the values are midnight for EST
+        self.assertEquals(aware_t, datetime.datetime(2013, 3, 1, tzinfo=pytz.timezone('US/Eastern')))
+
+        # Add a timedelta across the DST transition (Mar 10) within CST
+        ret = datetime_helpers.add_timedelta(
+            aware_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Central'))
+
+        # Assert that it is in DST
+        self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(hours=1))
+        # Verify the time is midnight two weeks later in EST. Note that the timezone changes since it happened
+        # across a DST boundary
+        self.assertEquals(ret, datetime.datetime(2013, 3, 15, tzinfo=ret.tzinfo))
+
+    def test_aware_est_within_cst_return_naive_dst_cross(self):
+        """
+        Tests time delta arithmetic when the input is aware and there is arithmetic within another timezone.
+        Returned values are naive. Tests the case where arithmetic happens across a dst transition.
+        """
+        # Create an aware datetime that is not in DST
+        aware_t = datetime_helpers.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
+        # Assert that it isn't in DST
+        self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
+        # Assert the values are midnight for EST
+        self.assertEquals(aware_t, datetime.datetime(2013, 3, 1, tzinfo=pytz.timezone('US/Eastern')))
+
+        # Add a timedelta across the DST transition (Mar 10) within CST
+        ret = datetime_helpers.add_timedelta(
+            aware_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Central'), return_naive=True)
+
+        # Verify the time is midnight two weeks later in EST
+        self.assertEquals(ret, datetime.datetime(2013, 3, 15))
 
 
 class TestDatetimeFloor(unittest.TestCase):
