@@ -1,125 +1,217 @@
 """
 Provides helpers for manipulating datetime objects with respect to time zones.
+
+Authors:
+    Wes Kendall (https://github.com/wesleykendall)
+    Jeff McRiffey (https://github.com/jmcriffey)
+    Josh Marlow (https://github.com/joshmarlow)
 """
 import datetime
 
 import pytz
 
 
-def attach_tz_if_none(t, tz):
+def attach_tz_if_none(dt, tz):
+    """Makes a naive timezone aware or returns it if it is already aware.
+
+    Attaches the timezone tz to the datetime dt if dt has no tzinfo. If
+    dt already has tzinfo set, return dt.
+
+    Args:
+        dt: A naive or aware datetime object.
+        tz: A pytz timezone object.
+
+    Returns:
+        An aware datetime dt with tzinfo set to tz. If dt already had tzinfo
+        set, dt is returned unchanged.
     """
-    Attachs the timezone tz to the time t if it has no timezone.
-    """
-    return tz.localize(t) if t.tzinfo is None else t
+    return tz.localize(dt) if dt.tzinfo is None else dt
 
 
-def convert_to_tz(t, tz):
+def remove_tz_if_return_naive(dt, return_naive):
+    """A helper function to strip tzinfo objects if return_naive is True.
+
+    Returns a naive datetime object if return_naive is True.
+
+    Args:
+        dt: A datetime object.
+        return_naive: A boolean.
+
+    Returns:
+        A naive dt if return_naive is True.
     """
-    Given a time t, convert it to time zone convert_tz.
-    """
-    t = attach_tz_if_none(t, pytz.utc)
-    return tz.normalize(t)
+    return dt.replace(tzinfo=None) if return_naive else dt
 
 
-def dst_normalize(t, tz):
+def convert_to_tz(dt, tz, return_naive=False):
+    """Converts a time into another timezone.
+
+    Given an aware or naive datetime dt, convert it to the timezone tz.
+
+    Args:
+        dt: A naive or aware datetime object. If dt is naive, it has UTC
+            set as its timezone.
+        tz: A pytz timezone object specifying the timezone to which dt
+            should be converted.
+        return_naive: A boolean describing whether the return value
+            should be a naive datetime object.
+
+    Returns:
+        An aware datetime object that was the result of converting dt
+        into tz. If return_naive is True, the returned value has no
+        tzinfo set.
     """
-    Given a local time t, normalize its time zone and return the datetime object with the same year, month, day,
-    hours, minutes, and seconds as it previously had before the conversion. This method is used when
-    converting a datetime object in a timezone that may have had DST happen to it after arithmetic.
+    return remove_tz_if_return_naive(
+        tz.normalize(attach_tz_if_none(dt, pytz.utc)), return_naive)
+
+
+def dst_normalize(dt):
+    """Normalizes a datetime that crossed a DST border to its new DST timezone.
+
+    Given an aware datetime object dt, call pytz's normalize function on dt's timezone
+    If dt had crossed a DST border because of datetime arithmetic, its timezone will
+    be changed to reflect the new DST timezone (for example, going from EST to EDT).
+
+    The original time values from dt remain unchanged.
 
     An example input to this function would be.
     t = 2013/03/11:05:00:00 EST
     Since march 11 overlaps DST, this datetime object is really in EDT. The returned value would be
     t = 2013/03/11:05:00:00 EDT.
-    Note that none of its actual time values changes other than its time zone.
+
+    Args:
+        dt: An aware datetime object.
+
+    Returns:
+        An aware datetime object that has time value identical to dt. The only possible difference
+        is that its timezone might have been converted into a DST timezone.
     """
-    localized_time = convert_to_tz(t, tz)
-    return localized_time.replace(
-        year=t.year, month=t.month, day=t.day, hour=t.hour, minute=t.minute, second=t.second,
-        microsecond=t.microsecond)
+    return dt.replace(tzinfo=convert_to_tz(dt, dt.tzinfo).tzinfo)
 
 
-def timedelta_tz(t, tz, td):
+def add_timedelta(dt, td, within_tz=None, return_naive=False):
+    """Adds a timedelta to a datetime. Can add timedeltas relative to a timezone.
+
+    Give a naive or aware datetime dt, add a timedelta td to it and return it. If
+    within_tz is specified, the datetime arithmetic happens with regard to the timezone.
+    Proper measures are used to ensure that datetime arithmetic across a DST border
+    is handled properly.
+
+    For example, let's say we have a UTC time of datetime(2013, 3, 7, 5) (which
+    is midnight in EST). Since DST happens at March 10 for EST, any datetime arithmetic
+    over 3 days within EST would result in a DST border being crossed. That is, if
+    we add two weeks to the UTC datetime, it becomes datetime(2013, 3, 21, 5). This
+    time is now 1 AM in EST, a potentially incorrect result depending on the application.
+
+    If you store datetimes as UTC values, but still want to do datetime arithmetic in
+    regards to a different timezone, you can use specify the within_tz value to be
+    a different timezone. For example,
+
+        add_timedelta(datetime(2013, 3, 21, 5), timedelta(weeks=2),
+                      within_tz=timezone('US/Eastern'))
+
+    returns datetime(2013, 3, 21, 4, tzinfo=pytz.utc), which is the proper UTC time for
+    EST midnight on 2013, 3, 21.
+
+    Args:
+        dt: A naive or aware datetime object. If it is naive, it is assumed to be UTC.
+        td: A timedelta (or relativedelta) object to add to dt.
+        within_tz: A pytz timezone object. If provided, dt will be converted to this
+            timezone before datetime arithmetic and then converted back to its original
+            timezone afterwards.
+        return_naive: A boolean defaulting to False. If True, the result is returned
+            as a naive datetime object with tzinfo equal to None.
+
+    Returns:
+        An aware datetime object that results from adding td to dt. The timezone of the
+        returned datetime will be equivalent to the original timezone of dt (or its DST
+        equivalent if a DST border was crossed). If return_naive is True, the returned
+        value has no tzinfo object.
     """
-    Given a time t (assumed to be in UTC), the time zone tz in which to perform the arithmetic, and a
-    time delta td, add the time delta in the timezone of tz and return the delta in UTC. This allows time deltas to
-    occur across dst transitions.
-    """
-    # Make sure it is aware in UTC
-    t = attach_tz_if_none(t, pytz.utc)
-    # Localize it to time_zone
-    t = convert_to_tz(t, tz)
-    # Add the time delta in the localized time zone
-    t += td
-    # Normalize the time delta depending on if it crosses a dst transition
-    t = dst_normalize(t, tz)
-    # Convert it back to UTC and return it
-    return convert_to_tz(t, pytz.utc)
+    # Make sure it is aware
+    dt = attach_tz_if_none(dt, pytz.utc)
+    # Localize it to time_zone if within_tz is specified
+    loc_dt = convert_to_tz(dt, within_tz) if within_tz else dt
+    # Add the time delta in the localized time zone, taking care of any DST border crossings
+    loc_dt = dst_normalize(loc_dt + td)
+    # Convert it back to the original timezone if within_tz was specified
+    loc_dt = convert_to_tz(loc_dt, dt.tzinfo) if within_tz else loc_dt
+    # Return it, stripping the timezone information if return_naive
+    return remove_tz_if_return_naive(loc_dt, return_naive)
 
 
-def datetime_floor(t, floor):
-    """
+def floor(dt, floor, within_tz=None, return_naive=False):
+    """Floors a datetime to the nearest time boundary.
+
     Perform a 'floor' on a datetime, where the floor variable can be:
     'year', 'month', 'day', 'hour', 'minute', 'second', or 'week'. This
-    function will round the datetime down to the nearest floor.
+    function will round the datetime down to the beginning of the start
+    of the floor.
+
+    Args:
+        dt: A naive or aware datetime object. If it is naive, it is
+            assumed to be UTC
+        floor: The interval to be floored. Can be 'year', 'month',
+            'week', 'day', 'hour', 'minute', or 'second'.
+        within_tz: A pytz timezone object. If given, the floor will
+            be performed with respect to the timezone.
+        return_naive: A boolean specifying whether to return the
+            datetime object as naive.
+
+    Returns:
+        An aware datetime object that results from flooring dt to floor. The timezone of the
+        returned datetime will be equivalent to the original timezone of dt (or its DST
+        equivalent if a DST border was crossed). If return_naive is True, the returned
+        value has no tzinfo object.
+
+    Raises:
+        ValueError if floor is not a valid floor value.
     """
-    if floor == 'year':
-        return t.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-    elif floor == 'month':
-        return t.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    elif floor == 'day':
-        return t.replace(hour=0, minute=0, second=0, microsecond=0)
-    elif floor == 'hour':
-        return t.replace(minute=0, second=0, microsecond=0)
-    elif floor == 'minute':
-        return t.replace(second=0, microsecond=0)
-    elif floor == 'second':
-        return t.replace(microsecond=0)
-    elif floor == 'week':
-        t = t.replace(hour=0, minute=0, second=0, microsecond=0)
-        return t - datetime.timedelta(days=t.weekday())
-    else:
-        raise ValueError('Invalid value {0} for floor argument'.format(floor))
+    # Make sure it is aware
+    dt = attach_tz_if_none(dt, pytz.utc)
+    # Localize it to time_zone if within_tz is specified
+    loc_dt = convert_to_tz(dt, within_tz) if within_tz else dt
+
+    # Make a list of intervals in a datetime object.
+    intervals = ('year', 'month', 'day', 'hour', 'minute', 'second', 'microsecond')
+    # If we are flooring to a week, we are really flooring to a day and subtracting
+    # the weekdays. Make sure the actual floor happens for a day
+    interval_i = intervals.index(floor) if floor != 'week' else intervals.index('day')
+    # Do the datetime floor, copying all the necessary time intervals from the original
+    # time. Do a dst normalize since it could have crossed a DST border
+    loc_dt = dst_normalize(datetime.datetime(tzinfo=loc_dt.tzinfo, **{
+        interval: getattr(loc_dt, interval) for interval in intervals[:interval_i + 1]
+    }))
+    # If the original floor value was for a week, subtract the proper amount of days
+    if floor == 'week':
+        loc_dt = add_timedelta(loc_dt, datetime.timedelta(days=-dt.weekday))
+
+    # Convert it back to the original timezone if within_tz was specified
+    loc_dt = convert_to_tz(loc_dt, dt.tzinfo) if within_tz else loc_dt
+    # Return it, stripping the timezone information if return_naive
+    return remove_tz_if_return_naive(loc_dt, return_naive)
 
 
-def datetime_floor_tz(t, tz, floor):
-    """
-    Floors a utc time in a different time zone. Returns a datetime object in UTC, but
-    floored relative to tz.
-    """
-    return datetime_floor(convert_to_tz(t, tz), floor).replace(tzinfo=pytz.utc)
+def unix_time(dt, within_tz=None, return_ms=False):
+    """Converts a datetime object to a unix timestamp.
 
+    Converts a naive or aware datetime object to unix timestamp. If within_tz
+    is present, the timestamp returned is relative to that time zone.
 
-def unix_time(t):
-    """
-    Converts a datetime object to unix timestamp assuming utc
-    :param dt: A datetime object
-    :type dt: datetime.datetime
-    :return: :int: unix timestamp in seconds
+    Args:
+        dt: A naive or aware datetime object. If it is naive,
+            it is assumed to be UTC.
+        within_tz: A pytz timezone object if the user wishes to
+            return the unix time relative to another timezone.
+        return_ms: A boolean specifying to return the value
+            in milliseconds since the Unix epoch. Defaults to False.
+
+    Returns:
+        An integer timestamp since the Unix epoch. If return_ms is
+        True, returns the timestamp in milliseconds.
     """
     epoch = datetime.datetime.utcfromtimestamp(0)
-    t = t.replace(tzinfo=None)
-    delta = t - epoch
-    return int(delta.total_seconds())
-
-
-def unix_time_ms(t):
-    """
-    Converts a datetime object to unix timestamp (in milliseconds) assuming utc.
-    """
-    return unix_time(t) * 1000
-
-
-def unix_time_tz(t, tz):
-    """
-    Converts a datetime object to unix timestamp (in seconds) for the given time zone.
-    """
-    loc_t = convert_to_tz(t, tz)
-    return unix_time(t) + int(loc_t.utcoffset().total_seconds())
-
-
-def unix_time_tz_ms(t, tz):
-    """
-    Converts a datetime object to unix timestamp (in milliseconds) for the given time zone.
-    """
-    return unix_time_tz(t, tz) * 1000
+    offset = convert_to_tz(dt, within_tz).utcoffset().total_seconds() if within_tz else 0
+    dt = dt.replace(tzinfo=None)
+    unix_time = (dt - epoch + offset).total_seconds()
+    return int(unix_time * 1000 if return_ms else unix_time)
