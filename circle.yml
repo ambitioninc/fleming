@@ -1,0 +1,5 @@
+test:
+  override:
+  - find datetime_helpers | grep .py$ | xargs ./venv/bin/pyflakes
+  - find datetime_helpers | grep .py$ | xargs ./venv/bin/pep8 --max-line-length=120
+  - ./venv/bin/python datetime_helpers/tests.py
