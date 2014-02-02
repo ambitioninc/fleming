@@ -4,8 +4,9 @@ Tests for datetime helpers.
 import datetime
 import unittest
 
-import datetime_helpers
 import pytz
+
+import datetime_helpers
 
 
 class TestAttachTzIfNone(unittest.TestCase):
@@ -462,7 +463,3 @@ class TestUnixTimeTzMs(unittest.TestCase):
         t = datetime.datetime(2013, 12, 1, 7)
         ret = datetime_helpers.unix_time_tz_ms(t, pytz.timezone('US/Eastern'))
         self.assertEquals(ret, 1385863200 * 1000)
-
-
-if __name__ == '__main__':
-    unittest.main()
