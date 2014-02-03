@@ -836,3 +836,38 @@ class TestUnixTime(unittest.TestCase):
         t = datetime.datetime.fromtimestamp(ret / 1000)
         self.assertEquals(t.hour, 0)
         self.assertEquals(t.day, 1)
+
+
+class TestIntervals(unittest.TestCase):
+    """
+    Tests the intervals function.
+    """
+    def test_naive_start_day_td_count(self):
+        """
+        Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
+        a count to get the range.
+        """
+        r = flemming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=10)
+        self.assertEquals(
+            r, [
+                datetime.datetime(2013, 3, 1, tzinfo=pytz.utc), datetime.datetime(2013, 3, 2, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 3, tzinfo=pytz.utc), datetime.datetime(2013, 3, 4, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 5, tzinfo=pytz.utc), datetime.datetime(2013, 3, 6, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 7, tzinfo=pytz.utc), datetime.datetime(2013, 3, 8, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 9, tzinfo=pytz.utc), datetime.datetime(2013, 3, 10, tzinfo=pytz.utc),
+            ])
+
+    def test_naive_start_day_td_count_return_naive(self):
+        """
+        Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
+        a count to get the range. Returns objects as naive times.
+        """
+        r = flemming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=10, return_naive=True)
+        self.assertEquals(
+            r, [
+                datetime.datetime(2013, 3, 1), datetime.datetime(2013, 3, 2),
+                datetime.datetime(2013, 3, 3), datetime.datetime(2013, 3, 4),
+                datetime.datetime(2013, 3, 5), datetime.datetime(2013, 3, 6),
+                datetime.datetime(2013, 3, 7), datetime.datetime(2013, 3, 8),
+                datetime.datetime(2013, 3, 9), datetime.datetime(2013, 3, 10),
+            ])

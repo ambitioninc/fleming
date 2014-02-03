@@ -319,6 +319,57 @@ def floor(dt, floor, within_tz=None, return_naive=False):
     return remove_tz_if_return_naive(loc_dt, return_naive)
 
 
+def intervals(
+        start_dt, td, within_tz=None, stop_dt=None, is_stop_dt_inclusive=False, count=0,
+        return_naive=False):
+    """Returns a range of datetime objects with a timedelta interval.
+
+    Returns a range of datetime objects starting from start_dt and going in increments of
+    timedelta td. If stop_dt is specified, the intervals goes up to stop_dt (and includes
+    stop_dt in the return if is_stop_dt_inclusive=True). If stop_dt is None, the
+    count variable is used to control how many iterations are in the time intervals.
+
+    Args:
+        start_dt: A naive or aware datetime object from which to start the time intervals.
+            If it is naive, it is assumed to be UTC.
+        td: A timedelta object describing the time interval in the intervals.
+        within_tz: A pytz timezone object. If provided, the intervals will be computed with
+            respect to this timezone.
+        stop_dt: A naive or aware datetime object that specifies the end of the intervals.
+            Defaults to being exclusive in the intervals. If naive, it is assumed to
+            be in UTC.
+        is_stop_dt_inclusive: True if the stop_dt should be included in the time
+            intervals. Defaults to False.
+        count: An integer specifying a count of intervals to use if stop_dt is None.
+        return_naive: All datetimes in the intervals are returned as naive objects.
+
+    Returns:
+        A list of datetime objects.
+    """
+    # Make sure start_dt is aware
+    start_dt = attach_tz_if_none(start_dt, pytz.utc)
+
+    # Create the range of datetime objects
+    time_iter = start_dt
+    loop_counter = 0
+    dt_range = []
+    while True:
+        dt_range.append(time_iter)
+
+        # Increment the time iteration and the loop counter
+        time_iter = add_timedelta(time_iter, td)
+        loop_counter += 1
+
+        # Break when the end criterion has been met
+        if ((stop_dt is None and loop_counter >= count) or
+                (stop_dt is not None and is_stop_dt_inclusive and time_iter > stop_dt) or
+                (stop_dt is not None and not is_stop_dt_inclusive and time_iter >= stop_dt)):
+            break
+
+    # Convert to naive times if necessary
+    return [remove_tz_if_return_naive(dt, return_naive) for dt in dt_range]
+
+
 def unix_time(dt, within_tz=None, return_ms=False):
     """Converts a datetime object to a unix timestamp.
 
