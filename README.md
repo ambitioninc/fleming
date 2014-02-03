@@ -1,7 +1,7 @@
-datetime_helpers
+flemming
 ================
 
-This repository contains the datetime_helpers package, which contains a set of routines for doing datetime manipulation. This package is geared towards users that do datetime manipulations with regards to timezones. For example, this package allows a user to perform datetime arithmetic while crossing Daylight Savings Time boundaries. It also provides the ability to floor datetime objects to certain boundaries (such as day, week, month) while also being relative to a local time zone.
+This repository contains the flemming package, which contains a set of routines for doing datetime manipulation. This package is geared towards users that do datetime manipulations with regards to timezones. For example, this package allows a user to perform datetime arithmetic while crossing Daylight Savings Time boundaries. It also provides the ability to floor datetime objects to certain boundaries (such as day, week, month) while also being relative to a local time zone.
 
 The functions in this package are outlined below.
 
@@ -18,7 +18,7 @@ An aware datetime object that was the result of converting dt into tz. If return
 
 **Examples:**
 
-    import datetime_helpers
+    import flemming
     import datetime
     import pytz
 
@@ -27,17 +27,17 @@ An aware datetime object that was the result of converting dt into tz. If return
     2013-02-04 00:00:00
 
     # Convert naive UTC time to aware EST time
-    dt = datetime_helpers.convert_to_tz(dt, pytz.timezone('US/Eastern'))
+    dt = flemming.convert_to_tz(dt, pytz.timezone('US/Eastern'))
     print dt
     2013-02-03 19:00:00-05:00
 
     # Convert aware EST time to aware CST time
-    dt = datetime_helpers.convert_to_tz(dt, pytz.timezone('US/Central'))
+    dt = flemming.convert_to_tz(dt, pytz.timezone('US/Central'))
     print dt
     2013-02-03 18:00:00-06:00
 
     # Convert aware CST time back to naive UTC time
-    dt = datetime_helpers.convert_to_tz(dt, pytz.utc, return_naive=True)
+    dt = flemming.convert_to_tz(dt, pytz.utc, return_naive=True)
     print dt
     2013-02-04 00:00:00
 
@@ -57,27 +57,27 @@ An aware datetime object that results from adding td to dt. The timezone of the 
 
     import pytz
     import datetime
-    import datetime_helpers
+    import flemming
 
     # Do a basic timedelta addition to a naive UTC time and create an aware UTC time
     # two weeks in the future
     dt = datetime.datetime(2013, 3, 1)
-    dt = datetime_helpers.add_timedelta(dt, datetime.timedelta(weeks=2))
+    dt = flemming.add_timedelta(dt, datetime.timedelta(weeks=2))
     print dt
     2013-03-15 00:00:00+00:00
 
     # Do addition on an EST datetime where the arithmetic does not cross over DST
-    dt = datetime_helpers.convert_to_tz(dt, pytz.timezone('US/Eastern'))
+    dt = flemming.convert_to_tz(dt, pytz.timezone('US/Eastern'))
     print dt
     2013-03-14 20:00:00-04:00
 
-    dt = datetime_helpers.add_timedelta(dt, datetime.timedelta(weeks=2, days=1))
+    dt = flemming.add_timedelta(dt, datetime.timedelta(weeks=2, days=1))
     print dt
     2013-03-29 20:00:00-04:00
 
     # Do timedelta arithmetic such that it starts in DST and crosses over into no DST.
     # Note that the hours stay in tact and the timezone changes
-    dt = datetime_helpers.add_timedelta(dt, datetime.timedelta(weeks=-4))
+    dt = flemming.add_timedelta(dt, datetime.timedelta(weeks=-4))
     print dt
     2013-03-01 20:00:00-05:00
 
@@ -85,18 +85,18 @@ An aware datetime object that results from adding td to dt. The timezone of the 
     # such that a DST border is crossed
     dt = datetime.datetime(2013, 3, 1, 5)
     # It should be midnight in EST
-    print datetime_helpers.convert_to_tz(dt, pytz.timezone('US/Eastern'))
+    print flemming.convert_to_tz(dt, pytz.timezone('US/Eastern'))
     2013-03-01 00:00:00-05:00
 
     # Do arithmetic on the UTC time with respect to EST.
-    dt = datetime_helpers.add_timedelta(
+    dt = flemming.add_timedelta(
         dt, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Eastern'))
     # The hour (4) of the returned UTC time is different that the original (5).
     print dt
     2013-03-15 04:00:00+00:00
 
     # However, the hours in EST still reflect midnight
-    print datetime_helpers.convert_to_tz(dt, pytz.timezone('US/Eastern'))
+    print flemming.convert_to_tz(dt, pytz.timezone('US/Eastern'))
     2013-03-15 00:00:00-04:00
 
 
@@ -119,48 +119,48 @@ ValueError if floor is not a valid floor value.
 
     import datetime
     import pytz
-    import datetime_helpers
+    import flemming
 
     # Do basic floors in naive UTC time. Results are UTC aware
-    print datetime_helpers.floor(datetime.datetime(2013, 3, 3, 5), 'year')
+    print flemming.floor(datetime.datetime(2013, 3, 3, 5), 'year')
     2013-01-01 00:00:00+00:00
 
-    print datetime_helpers.floor(datetime.datetime(2013, 3, 3, 5), 'month')
+    print flemming.floor(datetime.datetime(2013, 3, 3, 5), 'month')
     2013-03-01 00:00:00+00:00
 
     # Weeks start on Monday, so the floor will be for the previous Monday
-    print datetime_helpers.floor(datetime.datetime(2013, 3, 3, 5), 'week')
+    print flemming.floor(datetime.datetime(2013, 3, 3, 5), 'week')
     2013-02-25 00:00:00+00:00
 
-    print datetime_helpers.floor(datetime.datetime(2013, 3, 3, 5), 'day')
+    print flemming.floor(datetime.datetime(2013, 3, 3, 5), 'day')
     2013-03-03 00:00:00+00:00
 
     # Use return_naive if you don't want to return aware datetimes
-    print datetime_helpers.floor(
+    print flemming.floor(
         datetime.datetime(2013, 3, 3, 5), 'day', return_naive=True)
     2013-03-03 00:00:00
 
     # Peform a floor in EST. The result is in EST
-    dt = datetime_helpers.convert_to_tz(
+    dt = flemming.convert_to_tz(
         datetime.datetime(2013, 3, 4, 6), pytz.timezone('US/Eastern'))
     print dt
     2013-03-04 01:00:00-05:00
 
-     print datetime_helpers.floor(dt, 'year')
+     print flemming.floor(dt, 'year')
      2013-01-01 00:00:00-05:00
 
-    print datetime_helpers.floor(dt, 'day')
+    print flemming.floor(dt, 'day')
     2013-03-04 00:00:00-05:00
 
     # Now perform a floor that starts out of DST and ends up in DST. The
     # timezones before and after the floor will be different, but the
     # time values are correct
-    dt = datetime_helpers.convert_to_tz(
+    dt = flemming.convert_to_tz(
         datetime.datetime(2013, 11, 28, 6), pytz.timezone('US/Eastern'))
     print dt
     2013-11-28 01:00:00-05:00
 
-    print datetime_helpers.floor(dt, 'month')
+    print flemming.floor(dt, 'month')
     2013-11-01 00:00:00-04:00
 
     # Start with a naive UTC time and floor it with respect to EST
@@ -168,11 +168,11 @@ ValueError if floor is not a valid floor value.
     # Since it is January 31 in EST, the resulting floored value
     # for a day will be the previous day. Also, the returned value is
     # in the original timezone of UTC
-    print datetime_helpers.floor(dt, 'day', within_tz=pytz.timezone('US/Eastern'))
+    print flemming.floor(dt, 'day', within_tz=pytz.timezone('US/Eastern'))
     2013-01-31 00:00:00+00:00
 
     # Similarly, EST values can be floored relative to CST values.
-    dt = datetime_helpers.convert_to_tz(
+    dt = flemming.convert_to_tz(
         datetime.datetime(2013, 2, 1, 5), pytz.timezone('US/Eastern'))
     print dt
     2013-02-01 00:00:00-05:00
@@ -180,7 +180,7 @@ ValueError if floor is not a valid floor value.
     # Since it is January 31 in CST, the resulting floored value
     # for a day will be the previous day. Also, the returned value is
     # in the original timezone of EST
-    print datetime_helpers.floor(dt, 'day', within_tz=pytz.timezone('US/Central'))
+    print flemming.floor(dt, 'day', within_tz=pytz.timezone('US/Central'))
     2013-01-31 00:00:00-05:00
 
 
@@ -200,24 +200,24 @@ An integer timestamp since the Unix epoch. If return_ms is True, returns the tim
 
     import datetime
     import pytz
-    import datetime_helpers
+    import flemming
 
     # Do a basic naive UTC conversion
     dt = datetime.datetime(2013, 4, 2)
-    print datetime_helpers.unix_time(dt)
+    print flemming.unix_time(dt)
     1364860800
 
     # Convert a time in a different timezone
-    dt = datetime_helpers.convert_to_tz(
+    dt = flemming.convert_to_tz(
         datetime.datetime(2013, 4, 2, 4), pytz.timezone('US/Eastern'))
     print dt
     2013-04-02 00:00:00-04:00
 
-    print datetime_helpers.unix_time(dt)
+    print flemming.unix_time(dt)
     1364875200
 
     # Print millisecond returns
-    print datetime_helpers.unix_time(dt, return_ms=True)
+    print flemming.unix_time(dt, return_ms=True)
     1364875200000
 
     # Do a unix_time conversion with respect to another timezone. When
@@ -226,10 +226,10 @@ An integer timestamp since the Unix epoch. If return_ms is True, returns the tim
     dt = datetime.datetime(2013, 2, 1, 5)
 
     # Print its EST time for later reference
-    print datetime_helpers.convert_to_tz(dt, pytz.timezone('US/Eastern'))
+    print flemming.convert_to_tz(dt, pytz.timezone('US/Eastern'))
     2013-02-01 00:00:00-05:00
 
-    unix_tz_dt = datetime_helpers.unix_time(
+    unix_tz_dt = flemming.unix_time(
         dt, within_tz=pytz.timezone('US/Eastern'))
     print unix_tz_dt
     1359676800

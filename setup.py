@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(
-    name='python-datetime-helpers',
+    name='flemming',
     version='0.1',
     description='Python helpers for manipulating datetime objects relative to time zones',
     long_description=readme(),
@@ -16,11 +16,11 @@ setup(
       'Programming Language :: Python :: 2.7',
     ],
     keywords='python datetime pytz timezone timedelta arithmetic floor conversion',
-    url='https://github.com/ambitioninc/datetime_helpers',
+    url='https://github.com/ambitioninc/flemming',
     author='Wes Kendall',
     author_email='wesleykendall@gmail.com',
     license='MIT',
-    packages=['datetime_helpers'],
+    packages=['flemming'],
     install_requires=['pytz==2012h'],
     include_package_data=True,
     zip_safe=False,

@@ -1,4 +1,4 @@
-datetime_helpers is licensed under the MIT License:
+flemming is licensed under the MIT License:
 
 > Copyright (c) 2014: Ambition Solutions Inc.
 > 
