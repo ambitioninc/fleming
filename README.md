@@ -201,7 +201,7 @@ Returns a range of datetime objects starting from start_dt and going in incremen
 - return_naive: All datetimes in the intervals are returned as naive objects.
 
 **Returns:**
-A list of datetime objects.
+A generator of datetime objects.
 
 **Examples:**
 

@@ -344,7 +344,7 @@ def intervals(
         return_naive: All datetimes in the intervals are returned as naive objects.
 
     Returns:
-        A list of datetime objects.
+        A generator of datetime objects.
 
     Examples:
         import datetime
