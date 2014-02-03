@@ -1,7 +1,7 @@
-flemming
-================
-
 [![Build Status](https://travis-ci.org/ambitioninc/flemming.png)](https://travis-ci.org/ambitioninc/flemming)
+
+Flemming
+================
 
 This repository contains the flemming package, which contains a set of routines for doing datetime manipulation. This package is geared towards users that do datetime manipulations with regards to timezones. For example, this package allows a user to perform datetime arithmetic while crossing Daylight Savings Time boundaries. It also provides the ability to floor datetime objects to certain boundaries (such as day, week, month) while also being relative to a local time zone.
 

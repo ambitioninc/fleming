@@ -6,7 +6,7 @@ import unittest
 
 import pytz
 
-import flemming
+from flemming import flemming
 
 
 class TestAttachTzIfNone(unittest.TestCase):
