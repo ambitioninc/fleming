@@ -842,14 +842,30 @@ class TestIntervals(unittest.TestCase):
     """
     Tests the intervals function.
     """
+    def test_naive_start_day_td_count_zero(self):
+        """
+        Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
+        a count to get the range. Tests when the count is 0
+        """
+        intervals = flemming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=0)
+        self.assertEquals(list(intervals), [])
+
+    def test_naive_start_day_td_count_one(self):
+        """
+        Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
+        a count to get the range. Tests when the count is 1
+        """
+        intervals = flemming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=1)
+        self.assertEquals(list(intervals), [datetime.datetime(2013, 3, 1, tzinfo=pytz.utc)])
+
     def test_naive_start_day_td_count(self):
         """
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
         a count to get the range.
         """
-        r = flemming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=10)
+        intervals = flemming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=10)
         self.assertEquals(
-            r, [
+            list(intervals), [
                 datetime.datetime(2013, 3, 1, tzinfo=pytz.utc), datetime.datetime(2013, 3, 2, tzinfo=pytz.utc),
                 datetime.datetime(2013, 3, 3, tzinfo=pytz.utc), datetime.datetime(2013, 3, 4, tzinfo=pytz.utc),
                 datetime.datetime(2013, 3, 5, tzinfo=pytz.utc), datetime.datetime(2013, 3, 6, tzinfo=pytz.utc),
@@ -862,12 +878,134 @@ class TestIntervals(unittest.TestCase):
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
         a count to get the range. Returns objects as naive times.
         """
-        r = flemming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=10, return_naive=True)
+        intervals = flemming.intervals(
+            datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=10, return_naive=True)
         self.assertEquals(
-            r, [
+            list(intervals), [
                 datetime.datetime(2013, 3, 1), datetime.datetime(2013, 3, 2),
                 datetime.datetime(2013, 3, 3), datetime.datetime(2013, 3, 4),
                 datetime.datetime(2013, 3, 5), datetime.datetime(2013, 3, 6),
                 datetime.datetime(2013, 3, 7), datetime.datetime(2013, 3, 8),
                 datetime.datetime(2013, 3, 9), datetime.datetime(2013, 3, 10),
+            ])
+
+    def test_aware_start_day_td_count(self):
+        """
+        Tests the intervals function with an aware start_dt parameter with a timedelta of a day. Uses
+        a count to get the range.
+        """
+        intervals = flemming.intervals(
+            datetime.datetime(2013, 3, 1, tzinfo=pytz.utc), datetime.timedelta(days=1), count=10)
+        self.assertEquals(
+            list(intervals), [
+                datetime.datetime(2013, 3, 1, tzinfo=pytz.utc), datetime.datetime(2013, 3, 2, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 3, tzinfo=pytz.utc), datetime.datetime(2013, 3, 4, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 5, tzinfo=pytz.utc), datetime.datetime(2013, 3, 6, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 7, tzinfo=pytz.utc), datetime.datetime(2013, 3, 8, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 9, tzinfo=pytz.utc), datetime.datetime(2013, 3, 10, tzinfo=pytz.utc),
+            ])
+
+    def test_est_start_day_td_count_dst_cross(self):
+        """
+        Tests with an EST start_dt parameter with a timedelta of a day. Uses a count to get the range.
+        This function crosses a DST border.
+        """
+        est_no_dst = pytz.timezone('US/Eastern')
+        est_dst = flemming.convert_to_tz(datetime.datetime(2013, 3, 20), est_no_dst).tzinfo
+        start_dt = flemming.convert_to_tz(datetime.datetime(2013, 3, 5, 5), est_no_dst)
+        intervals = flemming.intervals(start_dt, datetime.timedelta(days=1), count=10)
+        self.assertEquals(
+            list(intervals), [
+                datetime.datetime(2013, 3, 5, tzinfo=est_no_dst), datetime.datetime(2013, 3, 6, tzinfo=est_no_dst),
+                datetime.datetime(2013, 3, 7, tzinfo=est_no_dst), datetime.datetime(2013, 3, 8, tzinfo=est_no_dst),
+                datetime.datetime(2013, 3, 9, tzinfo=est_no_dst), datetime.datetime(2013, 3, 10, tzinfo=est_no_dst),
+                datetime.datetime(2013, 3, 11, tzinfo=est_dst), datetime.datetime(2013, 3, 12, tzinfo=est_dst),
+                datetime.datetime(2013, 3, 13, tzinfo=est_dst), datetime.datetime(2013, 3, 14, tzinfo=est_dst),
+            ])
+
+    def test_est_start_arbitrary_td_count(self):
+        """
+        Tests with an EST start_dt parameter with an arbitrary timedelta. Uses a count to get the range.
+        """
+        est = pytz.timezone('US/Eastern')
+        start_dt = flemming.convert_to_tz(datetime.datetime(2013, 2, 5, 5), est)
+        intervals = flemming.intervals(start_dt, datetime.timedelta(days=1, hours=1), count=10)
+        self.assertEquals(
+            list(intervals), [
+                datetime.datetime(2013, 2, 5, tzinfo=est), datetime.datetime(2013, 2, 6, 1, tzinfo=est),
+                datetime.datetime(2013, 2, 7, 2, tzinfo=est), datetime.datetime(2013, 2, 8, 3, tzinfo=est),
+                datetime.datetime(2013, 2, 9, 4, tzinfo=est), datetime.datetime(2013, 2, 10, 5, tzinfo=est),
+                datetime.datetime(2013, 2, 11, 6, tzinfo=est), datetime.datetime(2013, 2, 12, 7, tzinfo=est),
+                datetime.datetime(2013, 2, 13, 8, tzinfo=est), datetime.datetime(2013, 2, 14, 9, tzinfo=est),
+            ])
+
+    def test_naive_within_est_day_td_dst_cross(self):
+        """
+        Tests with a naive start doing the range within another timezone while crossing a dst border.
+        """
+        start_dt = datetime.datetime(2013, 3, 5, tzinfo=pytz.utc)
+        intervals = flemming.intervals(
+            start_dt, datetime.timedelta(days=1), count=10, within_tz=pytz.timezone('US/Eastern'))
+        self.assertEquals(
+            list(intervals), [
+                datetime.datetime(2013, 3, 5, tzinfo=pytz.utc), datetime.datetime(2013, 3, 6, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 7, tzinfo=pytz.utc), datetime.datetime(2013, 3, 8, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 9, tzinfo=pytz.utc), datetime.datetime(2013, 3, 10, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 10, 23, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 11, 23, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 12, 23, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 13, 23, tzinfo=pytz.utc),
+            ])
+
+    def test_naive_start_day_td_stop_dt(self):
+        """
+        Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
+        a stop_dt to get the range.
+        """
+        intervals = flemming.intervals(
+            datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), stop_dt=datetime.datetime(2013, 3, 11))
+        self.assertEquals(
+            list(intervals), [
+                datetime.datetime(2013, 3, 1, tzinfo=pytz.utc), datetime.datetime(2013, 3, 2, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 3, tzinfo=pytz.utc), datetime.datetime(2013, 3, 4, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 5, tzinfo=pytz.utc), datetime.datetime(2013, 3, 6, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 7, tzinfo=pytz.utc), datetime.datetime(2013, 3, 8, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 9, tzinfo=pytz.utc), datetime.datetime(2013, 3, 10, tzinfo=pytz.utc),
+            ])
+
+    def test_naive_start_day_td_stop_dt_inclusive(self):
+        """
+        Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
+        an inclusive stop_dt to get the range.
+        """
+        intervals = flemming.intervals(
+            datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), stop_dt=datetime.datetime(2013, 3, 11),
+            is_stop_dt_inclusive=True)
+        self.assertEquals(
+            list(intervals), [
+                datetime.datetime(2013, 3, 1, tzinfo=pytz.utc), datetime.datetime(2013, 3, 2, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 3, tzinfo=pytz.utc), datetime.datetime(2013, 3, 4, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 5, tzinfo=pytz.utc), datetime.datetime(2013, 3, 6, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 7, tzinfo=pytz.utc), datetime.datetime(2013, 3, 8, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 9, tzinfo=pytz.utc), datetime.datetime(2013, 3, 10, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 11, tzinfo=pytz.utc),
+            ])
+
+    def test_naive_start_day_td_aware_stop_dt_inclusive(self):
+        """
+        Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
+        an inclusive stop_dt to get the range. The stop_dt is aware and in EST
+        """
+        intervals = flemming.intervals(
+            datetime.datetime(2013, 3, 1), datetime.timedelta(days=1),
+            stop_dt=flemming.convert_to_tz(datetime.datetime(2013, 3, 11, 4), pytz.timezone('US/Eastern')),
+            is_stop_dt_inclusive=True)
+        self.assertEquals(
+            list(intervals), [
+                datetime.datetime(2013, 3, 1, tzinfo=pytz.utc), datetime.datetime(2013, 3, 2, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 3, tzinfo=pytz.utc), datetime.datetime(2013, 3, 4, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 5, tzinfo=pytz.utc), datetime.datetime(2013, 3, 6, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 7, tzinfo=pytz.utc), datetime.datetime(2013, 3, 8, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 9, tzinfo=pytz.utc), datetime.datetime(2013, 3, 10, tzinfo=pytz.utc),
+                datetime.datetime(2013, 3, 11, tzinfo=pytz.utc),
             ])

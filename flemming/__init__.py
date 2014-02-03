@@ -349,25 +349,25 @@ def intervals(
     # Make sure start_dt is aware
     start_dt = attach_tz_if_none(start_dt, pytz.utc)
 
-    # Create the range of datetime objects
+    # Make sure the stop_dt is aware
+    stop_dt = attach_tz_if_none(stop_dt, pytz.utc) if stop_dt is not None else None
+
+    # Set initial time and loop iteration values
     time_iter = start_dt
     loop_counter = 0
-    dt_range = []
+
     while True:
-        dt_range.append(time_iter)
-
-        # Increment the time iteration and the loop counter
-        time_iter = add_timedelta(time_iter, td)
-        loop_counter += 1
-
         # Break when the end criterion has been met
         if ((stop_dt is None and loop_counter >= count) or
                 (stop_dt is not None and is_stop_dt_inclusive and time_iter > stop_dt) or
                 (stop_dt is not None and not is_stop_dt_inclusive and time_iter >= stop_dt)):
             break
 
-    # Convert to naive times if necessary
-    return [remove_tz_if_return_naive(dt, return_naive) for dt in dt_range]
+        yield remove_tz_if_return_naive(time_iter, return_naive)
+
+        # Increment the time iteration and the loop counter
+        time_iter = add_timedelta(time_iter, td, within_tz=within_tz)
+        loop_counter += 1
 
 
 def unix_time(dt, within_tz=None, return_ms=False):
