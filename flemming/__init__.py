@@ -325,7 +325,7 @@ def intervals(
     """Returns a range of datetime objects with a timedelta interval.
 
     Returns a range of datetime objects starting from start_dt and going in increments of
-    timedelta td. If stop_dt is specified, the intervals goes up to stop_dt (and includes
+    timedelta td. If stop_dt is specified, the intervals go to stop_dt (and include
     stop_dt in the return if is_stop_dt_inclusive=True). If stop_dt is None, the
     count variable is used to control how many iterations are in the time intervals.
 
