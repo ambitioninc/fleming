@@ -1,4 +1,4 @@
-flemming is licensed under the MIT License:
+Fleming is licensed under the MIT License:
 
 > Copyright (c) 2014: Ambition Solutions Inc.
 > 

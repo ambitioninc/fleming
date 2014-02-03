@@ -6,7 +6,7 @@ import unittest
 
 import pytz
 
-from flemming import flemming
+from fleming import fleming
 
 
 class TestAttachTzIfNone(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestAttachTzIfNone(unittest.TestCase):
         naive_t = datetime.datetime(2014, 2, 1)
         # Time should not have a tzinfo object
         self.assertIsNone(naive_t.tzinfo)
-        ret = flemming.attach_tz_if_none(naive_t, pytz.utc)
+        ret = fleming.attach_tz_if_none(naive_t, pytz.utc)
         # Time should now have a utc tzinfo object
         self.assertEquals(ret.tzinfo, pytz.utc)
 
@@ -32,7 +32,7 @@ class TestAttachTzIfNone(unittest.TestCase):
         naive_t = datetime.datetime(2014, 2, 1)
         # Time should not have a tzinfo object
         self.assertIsNone(naive_t.tzinfo)
-        ret = flemming.attach_tz_if_none(naive_t, pytz.timezone('US/Eastern'))
+        ret = fleming.attach_tz_if_none(naive_t, pytz.timezone('US/Eastern'))
         # Time should now have a utc tzinfo object
         self.assertEquals(ret.tzinfo, pytz.timezone('US/Eastern'))
 
@@ -43,7 +43,7 @@ class TestAttachTzIfNone(unittest.TestCase):
         """
         aware_t = datetime.datetime(2014, 2, 1, tzinfo=pytz.timezone('US/Eastern'))
         # Try to attach UTC. It should not attach it
-        ret = flemming.attach_tz_if_none(aware_t, pytz.utc)
+        ret = fleming.attach_tz_if_none(aware_t, pytz.utc)
         self.assertEquals(ret.tzinfo, pytz.timezone('US/Eastern'))
 
 
@@ -57,7 +57,7 @@ class TestRemoveTzIfReturnNaive(unittest.TestCase):
         return_naive set to True.
         """
         naive_t = datetime.datetime(2013, 2, 1, 12)
-        ret = flemming.remove_tz_if_return_naive(naive_t, True)
+        ret = fleming.remove_tz_if_return_naive(naive_t, True)
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 12))
 
     def test_with_naive_dt_false(self):
@@ -66,7 +66,7 @@ class TestRemoveTzIfReturnNaive(unittest.TestCase):
         return_naive set to False.
         """
         naive_t = datetime.datetime(2013, 2, 1, 12)
-        ret = flemming.remove_tz_if_return_naive(naive_t, False)
+        ret = fleming.remove_tz_if_return_naive(naive_t, False)
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 12))
 
     def test_with_aware_dt_true(self):
@@ -75,7 +75,7 @@ class TestRemoveTzIfReturnNaive(unittest.TestCase):
         return_naive set to True.
         """
         aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc)
-        ret = flemming.remove_tz_if_return_naive(aware_t, True)
+        ret = fleming.remove_tz_if_return_naive(aware_t, True)
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 12))
 
     def test_with_aware_dt_false(self):
@@ -84,7 +84,7 @@ class TestRemoveTzIfReturnNaive(unittest.TestCase):
         return_naive set to False.
         """
         aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc)
-        ret = flemming.remove_tz_if_return_naive(aware_t, False)
+        ret = fleming.remove_tz_if_return_naive(aware_t, False)
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc))
 
 
@@ -98,7 +98,7 @@ class TestConvertToTz(unittest.TestCase):
         where the return value is aware.
         """
         naive_t = datetime.datetime(2013, 2, 1, 12)
-        ret = flemming.convert_to_tz(naive_t, pytz.timezone('US/Eastern'))
+        ret = fleming.convert_to_tz(naive_t, pytz.timezone('US/Eastern'))
         # In this time, eastern standard time is 5 hours before UTC
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 7, tzinfo=pytz.timezone('US/Eastern')))
 
@@ -107,7 +107,7 @@ class TestConvertToTz(unittest.TestCase):
         Tests an aware datetime that is UTC to EST where the return value is aware.
         """
         aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc)
-        ret = flemming.convert_to_tz(aware_t, pytz.timezone('US/Eastern'))
+        ret = fleming.convert_to_tz(aware_t, pytz.timezone('US/Eastern'))
         # In this time, eastern standard time is 5 hours before UTC
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 7, tzinfo=pytz.timezone('US/Eastern')))
 
@@ -116,7 +116,7 @@ class TestConvertToTz(unittest.TestCase):
         Tests converting an aware datetime in EST to CST where the return value is aware.
         """
         aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.timezone('US/Eastern'))
-        ret = flemming.convert_to_tz(aware_t, pytz.timezone('US/Central'))
+        ret = fleming.convert_to_tz(aware_t, pytz.timezone('US/Central'))
         # Central time zone is one hour behind eastern
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 11, tzinfo=pytz.timezone('US/Central')))
 
@@ -126,7 +126,7 @@ class TestConvertToTz(unittest.TestCase):
         return value is naive.
         """
         naive_t = datetime.datetime(2013, 2, 1, 12)
-        ret = flemming.convert_to_tz(naive_t, pytz.timezone('US/Eastern'), return_naive=True)
+        ret = fleming.convert_to_tz(naive_t, pytz.timezone('US/Eastern'), return_naive=True)
         # In this time, eastern standard time is 5 hours before UTC
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 7))
 
@@ -135,7 +135,7 @@ class TestConvertToTz(unittest.TestCase):
         Tests an aware datetime that is UTC to EST where the return value is naive.
         """
         aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc)
-        ret = flemming.convert_to_tz(aware_t, pytz.timezone('US/Eastern'), return_naive=True)
+        ret = fleming.convert_to_tz(aware_t, pytz.timezone('US/Eastern'), return_naive=True)
         # In this time, eastern standard time is 5 hours before UTC
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 7))
 
@@ -144,7 +144,7 @@ class TestConvertToTz(unittest.TestCase):
         Tests converting an aware datetime in EST to CST where the return value is naive.
         """
         aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.timezone('US/Eastern'))
-        ret = flemming.convert_to_tz(aware_t, pytz.timezone('US/Central'), return_naive=True)
+        ret = fleming.convert_to_tz(aware_t, pytz.timezone('US/Central'), return_naive=True)
         # Central time zone is one hour behind eastern
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 11))
 
@@ -161,7 +161,7 @@ class TestDstNormalize(unittest.TestCase):
         of daylight savings time.
         """
         aware_t = datetime.datetime(2013, 4, 2, tzinfo=pytz.utc)
-        ret = flemming.dst_normalize(aware_t)
+        ret = fleming.dst_normalize(aware_t)
         self.assertEquals(ret, datetime.datetime(2013, 4, 2, tzinfo=pytz.utc))
 
     def test_change_in_tz_into_dst(self):
@@ -181,7 +181,7 @@ class TestDstNormalize(unittest.TestCase):
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # Do a DST normalization. The resulting time zone should be in DST, but none of the
         # time values in original time should have changed
-        ret = flemming.dst_normalize(aware_t)
+        ret = fleming.dst_normalize(aware_t)
         # Verify the time zone of the returned is in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(hours=1))
         # Verify that all of the time values are correct (i.e. verify an extra hour wasn't added
@@ -207,7 +207,7 @@ class TestDstNormalize(unittest.TestCase):
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(hours=1))
         # Do a DST normalization. The resulting time zone should not be in DST, but none of the
         # time values in original time should have changed
-        ret = flemming.dst_normalize(aware_t)
+        ret = fleming.dst_normalize(aware_t)
         # Verify the time zone of the returned is not in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         # Verify that all of the time values are correct (i.e. verify an extra hour wasn't added
@@ -229,7 +229,7 @@ class TestDstNormalize(unittest.TestCase):
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # Do a DST normalization. The resulting time zone should not be in DST, and none of the
         # time values in original time should have changed
-        ret = flemming.dst_normalize(aware_t)
+        ret = fleming.dst_normalize(aware_t)
         # Verify the time zone of the returned is not in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         # Verify that all of the time values are correct
@@ -247,7 +247,7 @@ class TestAddTimedelta(unittest.TestCase):
         also aware
         """
         naive_t = datetime.datetime(2013, 4, 1)
-        ret = flemming.add_timedelta(naive_t, datetime.timedelta(days=2))
+        ret = fleming.add_timedelta(naive_t, datetime.timedelta(days=2))
         self.assertEquals(ret, datetime.datetime(2013, 4, 3, tzinfo=pytz.utc))
 
     def test_naive_within_no_tz_return_naive(self):
@@ -257,7 +257,7 @@ class TestAddTimedelta(unittest.TestCase):
         also naive.
         """
         naive_t = datetime.datetime(2013, 4, 1)
-        ret = flemming.add_timedelta(naive_t, datetime.timedelta(days=2), return_naive=True)
+        ret = fleming.add_timedelta(naive_t, datetime.timedelta(days=2), return_naive=True)
         self.assertEquals(ret, datetime.datetime(2013, 4, 3))
 
     def test_aware_within_no_tz_return_aware(self):
@@ -266,7 +266,7 @@ class TestAddTimedelta(unittest.TestCase):
         values are aware.
         """
         aware_t = datetime.datetime(2013, 4, 1, tzinfo=pytz.utc)
-        ret = flemming.add_timedelta(
+        ret = fleming.add_timedelta(
             aware_t, datetime.timedelta(days=1, minutes=1, seconds=1, microseconds=1))
         self.assertEquals(ret, datetime.datetime(2013, 4, 2, 0, 1, 1, 1, tzinfo=pytz.utc))
 
@@ -276,7 +276,7 @@ class TestAddTimedelta(unittest.TestCase):
         values are naive.
         """
         aware_t = datetime.datetime(2013, 4, 1, tzinfo=pytz.utc)
-        ret = flemming.add_timedelta(
+        ret = fleming.add_timedelta(
             aware_t, datetime.timedelta(days=1, minutes=1, seconds=1, microseconds=1),
             return_naive=True)
         self.assertEquals(ret, datetime.datetime(2013, 4, 2, 0, 1, 1, 1))
@@ -287,14 +287,14 @@ class TestAddTimedelta(unittest.TestCase):
         values are aware. Tests the case where arithmetic happens across a dst transition.
         """
         # Create an aware datetime that is not in DST
-        aware_t = flemming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
+        aware_t = fleming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
         # Assert that it isn't in DST
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # Assert the values are midnight for EST
         self.assertEquals(aware_t, datetime.datetime(2013, 3, 1, tzinfo=pytz.timezone('US/Eastern')))
 
         # Add a timedelta across the DST transition (Mar 10)
-        ret = flemming.add_timedelta(aware_t, datetime.timedelta(weeks=2))
+        ret = fleming.add_timedelta(aware_t, datetime.timedelta(weeks=2))
         # Verify the time zone is now in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(hours=1))
         # Verify the time is midnight two weeks later
@@ -306,14 +306,14 @@ class TestAddTimedelta(unittest.TestCase):
         values are naive. Tests the case where arithmetic happens across a dst transition.
         """
         # Create an aware datetime that is not in DST
-        aware_t = flemming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
+        aware_t = fleming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
         # Assert that it isn't in DST
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # Assert the values are midnight for EST
         self.assertEquals(aware_t, datetime.datetime(2013, 3, 1, tzinfo=pytz.timezone('US/Eastern')))
 
         # Add a timedelta across the DST transition (Mar 10)
-        ret = flemming.add_timedelta(aware_t, datetime.timedelta(weeks=2), return_naive=True)
+        ret = fleming.add_timedelta(aware_t, datetime.timedelta(weeks=2), return_naive=True)
         # Verify the time is midnight two weeks later and is naive
         self.assertEquals(ret, datetime.datetime(2013, 3, 15))
 
@@ -326,7 +326,7 @@ class TestAddTimedelta(unittest.TestCase):
         naive_t = datetime.datetime(2013, 3, 1, 5)
 
         # Add a timedelta across the DST transition for EST (Mar 10)
-        ret = flemming.add_timedelta(
+        ret = fleming.add_timedelta(
             naive_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Eastern'))
         # Verify the time is midnight two weeks later in UTC. Note that the original hour has changed
         # since we crossed the DST boundary in EST
@@ -341,7 +341,7 @@ class TestAddTimedelta(unittest.TestCase):
         naive_t = datetime.datetime(2013, 3, 1, 5)
 
         # Add a timedelta across the DST transition for EST (Mar 10)
-        ret = flemming.add_timedelta(
+        ret = fleming.add_timedelta(
             naive_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Eastern'), return_naive=True)
         # Verify the time is midnight two weeks later in UTC. Note that the original hour has changed
         # since we crossed the DST boundary in EST
@@ -353,10 +353,10 @@ class TestAddTimedelta(unittest.TestCase):
         Returned values are aware. Tests the case where arithmetic happens across a dst transition.
         """
         # Create an aware datetime that is not in DST for EST
-        aware_t = flemming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.utc)
+        aware_t = fleming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.utc)
 
         # Add a timedelta across the DST transition (Mar 10) within EST
-        ret = flemming.add_timedelta(
+        ret = fleming.add_timedelta(
             aware_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Eastern'))
         # Verify the time is midnight two weeks later in UTC. Note that the hour changes since it happened
         # across an EST DST boundary
@@ -368,10 +368,10 @@ class TestAddTimedelta(unittest.TestCase):
         Returned values are naive. Tests the case where arithmetic happens across a dst transition.
         """
         # Create an aware datetime that is not in DST for EST
-        aware_t = flemming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.utc)
+        aware_t = fleming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.utc)
 
         # Add a timedelta across the DST transition (Mar 10) within EST
-        ret = flemming.add_timedelta(
+        ret = fleming.add_timedelta(
             aware_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Eastern'), return_naive=True)
         # Verify the time is midnight two weeks later in UTC. Note that the hour changes since it happened
         # across an EST DST boundary
@@ -383,14 +383,14 @@ class TestAddTimedelta(unittest.TestCase):
         Returned values are aware. Tests the case where arithmetic happens across a dst transition.
         """
         # Create an aware datetime that is not in DST
-        aware_t = flemming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
+        aware_t = fleming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
         # Assert that it isn't in DST
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # Assert the values are midnight for EST
         self.assertEquals(aware_t, datetime.datetime(2013, 3, 1, tzinfo=pytz.timezone('US/Eastern')))
 
         # Add a timedelta across the DST transition (Mar 10) within CST
-        ret = flemming.add_timedelta(
+        ret = fleming.add_timedelta(
             aware_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Central'))
 
         # Assert that it is in DST
@@ -405,14 +405,14 @@ class TestAddTimedelta(unittest.TestCase):
         Returned values are naive. Tests the case where arithmetic happens across a dst transition.
         """
         # Create an aware datetime that is not in DST
-        aware_t = flemming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
+        aware_t = fleming.convert_to_tz(datetime.datetime(2013, 3, 1, 5), pytz.timezone('US/Eastern'))
         # Assert that it isn't in DST
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # Assert the values are midnight for EST
         self.assertEquals(aware_t, datetime.datetime(2013, 3, 1, tzinfo=pytz.timezone('US/Eastern')))
 
         # Add a timedelta across the DST transition (Mar 10) within CST
-        ret = flemming.add_timedelta(
+        ret = fleming.add_timedelta(
             aware_t, datetime.timedelta(weeks=2), within_tz=pytz.timezone('US/Central'), return_naive=True)
 
         # Verify the time is midnight two weeks later in EST
@@ -428,7 +428,7 @@ class TestFloor(unittest.TestCase):
         Tests flooring a naive datetime to a year and returning an aware datetime.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = flemming.floor(t, 'year')
+        t = fleming.floor(t, 'year')
         self.assertEquals(t, datetime.datetime(2013, 1, 1, tzinfo=pytz.utc))
 
     def test_naive_floor_month(self):
@@ -436,7 +436,7 @@ class TestFloor(unittest.TestCase):
         Tests flooring a naive datetime to a month and returning an aware datetime.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = flemming.floor(t, 'month')
+        t = fleming.floor(t, 'month')
         self.assertEquals(t, datetime.datetime(2013, 3, 1, tzinfo=pytz.utc))
 
     def test_naive_floor_week_stays_in_month(self):
@@ -445,7 +445,7 @@ class TestFloor(unittest.TestCase):
         Returns an aware datetime.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = flemming.floor(t, 'week')
+        t = fleming.floor(t, 'week')
         self.assertEquals(t, datetime.datetime(2013, 3, 4, tzinfo=pytz.utc))
 
     def test_naive_floor_week_goes_to_prev_month(self):
@@ -454,7 +454,7 @@ class TestFloor(unittest.TestCase):
         Return value is aware.
         """
         t = datetime.datetime(2013, 3, 1, 12, 23, 4, 40)
-        t = flemming.floor(t, 'week')
+        t = fleming.floor(t, 'week')
         self.assertEquals(t, datetime.datetime(2013, 2, 25, tzinfo=pytz.utc))
 
     def test_naive_floor_day(self):
@@ -462,7 +462,7 @@ class TestFloor(unittest.TestCase):
         Tests flooring a naive datetime to a day. Return value is aware.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = flemming.floor(t, 'day')
+        t = fleming.floor(t, 'day')
         self.assertEquals(t, datetime.datetime(2013, 3, 4, tzinfo=pytz.utc))
 
     def test_naive_floor_day_return_naive(self):
@@ -470,7 +470,7 @@ class TestFloor(unittest.TestCase):
         Tests flooring a naive datetime to a day. Return value is naive.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = flemming.floor(t, 'day', return_naive=True)
+        t = fleming.floor(t, 'day', return_naive=True)
         self.assertEquals(t, datetime.datetime(2013, 3, 4))
 
     def test_naive_floor_hour(self):
@@ -478,7 +478,7 @@ class TestFloor(unittest.TestCase):
         Tests flooring a naive datetime to an hour. Return value is aware
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = flemming.floor(t, 'hour')
+        t = fleming.floor(t, 'hour')
         self.assertEquals(t, datetime.datetime(2013, 3, 4, 12, tzinfo=pytz.utc))
 
     def test_naive_floor_minute(self):
@@ -486,7 +486,7 @@ class TestFloor(unittest.TestCase):
         Tests flooring a naive datetime to a minute. Return value is aware.
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = flemming.floor(t, 'minute')
+        t = fleming.floor(t, 'minute')
         self.assertEquals(t, datetime.datetime(2013, 3, 4, 12, 23, tzinfo=pytz.utc))
 
     def test_naive_floor_second(self):
@@ -494,7 +494,7 @@ class TestFloor(unittest.TestCase):
         Tests flooring a naive datetime to a minute. Return value is aware
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
-        t = flemming.floor(t, 'second')
+        t = fleming.floor(t, 'second')
         self.assertEquals(t, datetime.datetime(2013, 3, 4, 12, 23, 4, tzinfo=pytz.utc))
 
     def test_floor_invalid(self):
@@ -503,17 +503,17 @@ class TestFloor(unittest.TestCase):
         """
         t = datetime.datetime(2013, 3, 4, 12, 23, 4, 40)
         with self.assertRaises(ValueError):
-            flemming.floor(t, 'invalid')
+            fleming.floor(t, 'invalid')
 
     def test_aware_floor_year(self):
         """
         Tests flooring an aware datetime to a year and returning an aware datetime.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
-        ret = flemming.floor(t, 'year')
+        ret = fleming.floor(t, 'year')
         # Resulting time zone should not be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         self.assertEquals(ret, datetime.datetime(2013, 1, 1, tzinfo=t.tzinfo))
@@ -522,11 +522,11 @@ class TestFloor(unittest.TestCase):
         """
         Tests flooring an aware datetime to a month and returning an aware datetime.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
-        ret = flemming.floor(t, 'month')
+        ret = fleming.floor(t, 'month')
         # Resulting time zone should not be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         self.assertEquals(ret, datetime.datetime(2013, 3, 1, tzinfo=t.tzinfo))
@@ -536,11 +536,11 @@ class TestFloor(unittest.TestCase):
         Tests flooring an aware datetime to a week where the month value remains the same.
         Returns an aware datetime.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
-        ret = flemming.floor(t, 'week')
+        ret = fleming.floor(t, 'week')
         # Resulting time zone should not be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         self.assertEquals(ret, datetime.datetime(2013, 3, 4, tzinfo=t.tzinfo))
@@ -550,11 +550,11 @@ class TestFloor(unittest.TestCase):
         Tests flooring an aware datetime to a week where the month value goes backwards.
         Return value is aware.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 1, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
-        ret = flemming.floor(t, 'week')
+        ret = fleming.floor(t, 'week')
         # Resulting time zone should not be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         self.assertEquals(ret, datetime.datetime(2013, 2, 25, tzinfo=t.tzinfo))
@@ -563,11 +563,11 @@ class TestFloor(unittest.TestCase):
         """
         Tests flooring an aware datetime to a day. Return value is aware.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
-        ret = flemming.floor(t, 'day')
+        ret = fleming.floor(t, 'day')
         # Resulting time zone should not be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         self.assertEquals(ret, datetime.datetime(2013, 3, 4, tzinfo=t.tzinfo))
@@ -576,22 +576,22 @@ class TestFloor(unittest.TestCase):
         """
         Tests flooring an aware datetime to a day. Return value is naive.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
-        ret = flemming.floor(t, 'day', return_naive=True)
+        ret = fleming.floor(t, 'day', return_naive=True)
         self.assertEquals(ret, datetime.datetime(2013, 3, 4))
 
     def test_aware_floor_hour(self):
         """
         Tests flooring an aware datetime to an hour. Return value is aware
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
-        ret = flemming.floor(t, 'hour')
+        ret = fleming.floor(t, 'hour')
         # Resulting time zone should not be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         self.assertEquals(ret, datetime.datetime(2013, 3, 4, t.hour, tzinfo=t.tzinfo))
@@ -600,11 +600,11 @@ class TestFloor(unittest.TestCase):
         """
         Tests flooring an aware datetime to a minute. Return value is aware.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
-        ret = flemming.floor(t, 'minute')
+        ret = fleming.floor(t, 'minute')
         # Resulting time zone should not be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         self.assertEquals(ret, datetime.datetime(2013, 3, 4, t.hour, 23, tzinfo=t.tzinfo))
@@ -613,11 +613,11 @@ class TestFloor(unittest.TestCase):
         """
         Tests flooring an aware datetime to a minute. Return value is aware
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 4, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
-        ret = flemming.floor(t, 'second')
+        ret = fleming.floor(t, 'second')
         # Resulting time zone should not be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         self.assertEquals(ret, datetime.datetime(2013, 3, 4, t.hour, 23, 4, tzinfo=t.tzinfo))
@@ -627,11 +627,11 @@ class TestFloor(unittest.TestCase):
         Tests flooring an aware datetime to a year and returning an aware datetime.
         Floor starts in DST and goes out of DST.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 14, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(hours=1))
-        ret = flemming.floor(t, 'year')
+        ret = fleming.floor(t, 'year')
         # Resulting time zone should not be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         self.assertEquals(ret, datetime.datetime(2013, 1, 1, tzinfo=ret.tzinfo))
@@ -641,11 +641,11 @@ class TestFloor(unittest.TestCase):
         Tests flooring an aware datetime to a month and returning an aware datetime.
         Floor starts in DST and goes out of DST.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 3, 14, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(hours=1))
-        ret = flemming.floor(t, 'month')
+        ret = fleming.floor(t, 'month')
         # Resulting time zone should not be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         self.assertEquals(ret, datetime.datetime(2013, 3, 1, tzinfo=ret.tzinfo))
@@ -655,11 +655,11 @@ class TestFloor(unittest.TestCase):
         Tests flooring an aware datetime to a month and returning an aware datetime.
         Floor starts out of DST and goes into DST.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 11, 14, 12, 23, 4, 40), pytz.timezone('US/Eastern'))
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(hours=0))
-        ret = flemming.floor(t, 'month')
+        ret = fleming.floor(t, 'month')
         # Resulting time zone should be in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(hours=1))
         self.assertEquals(ret, datetime.datetime(2013, 11, 1, tzinfo=ret.tzinfo))
@@ -670,7 +670,7 @@ class TestFloor(unittest.TestCase):
         """
         t = datetime.datetime(2013, 4, 1)
         # t is in midnight UTC, but it is still in the previous day for EST.
-        ret = flemming.floor(t, 'day', within_tz=pytz.timezone('US/Eastern'))
+        ret = fleming.floor(t, 'day', within_tz=pytz.timezone('US/Eastern'))
         # The return value should be for the last day of the previous month, and the
         # timezone should still be in UTC
         self.assertEquals(ret, datetime.datetime(2013, 3, 31, tzinfo=pytz.utc))
@@ -682,7 +682,7 @@ class TestFloor(unittest.TestCase):
         """
         t = datetime.datetime(2013, 4, 1)
         # t is in midnight UTC, but it is still in the previous day for EST.
-        ret = flemming.floor(t, 'day', within_tz=pytz.timezone('US/Eastern'), return_naive=True)
+        ret = fleming.floor(t, 'day', within_tz=pytz.timezone('US/Eastern'), return_naive=True)
         # The return value should be for the last day of the previous month, and the
         # timezone should still be in UTC
         self.assertEquals(ret, datetime.datetime(2013, 3, 31))
@@ -691,14 +691,14 @@ class TestFloor(unittest.TestCase):
         """
         Tests flooring of an EST time with respect to CST. Returns an aware datetime in EST.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 4, 1, 4), pytz.timezone('US/Eastern'))
         # Verify it is midnight for eastern time
         self.assertEquals(t.hour, 0)
 
         # Floor the time to a day with respect to CST. Since CST is an hour behind, the day
         # should be minus one
-        ret = flemming.floor(t, 'day', within_tz=pytz.timezone('US/Central'))
+        ret = fleming.floor(t, 'day', within_tz=pytz.timezone('US/Central'))
         self.assertEquals(ret, datetime.datetime(2013, 3, 31, tzinfo=t.tzinfo))
 
     def test_utc_floor_within_est_week(self):
@@ -707,7 +707,7 @@ class TestFloor(unittest.TestCase):
         performed relative to EST, meaning the result should be for the previous week.
         """
         t = datetime.datetime(2013, 4, 8, tzinfo=pytz.utc)
-        ret = flemming.floor(t, 'week', within_tz=pytz.timezone('US/Eastern'))
+        ret = fleming.floor(t, 'week', within_tz=pytz.timezone('US/Eastern'))
         # The time should be a week earlier in UTC
         self.assertEquals(ret, datetime.datetime(2013, 4, 1, tzinfo=pytz.utc))
 
@@ -716,12 +716,12 @@ class TestFloor(unittest.TestCase):
         Tests the case where it is the starting of a week in EST and the floor is
         performed relative to UTC, meaning the result should be for the next week.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 11, 4, 4), pytz.timezone('US/Eastern'))
         # Affirm that the time is 11 PM in EST
         self.assertEquals(t.day, 3)
         self.assertEquals(t.hour, 23)
-        ret = flemming.floor(t, 'week', within_tz=pytz.utc)
+        ret = fleming.floor(t, 'week', within_tz=pytz.utc)
         # The time should be a week later in EST since UTC was a week ahead
         self.assertEquals(ret, datetime.datetime(2013, 11, 4, tzinfo=t.tzinfo))
 
@@ -735,7 +735,7 @@ class TestUnixTime(unittest.TestCase):
         Tests the unix_time function when the epoch is given.
         """
         t = datetime.datetime(1970, 1, 1)
-        ret = flemming.unix_time(t)
+        ret = fleming.unix_time(t)
         self.assertEquals(ret, 0)
 
     def test_unix_time_arbitrary_one(self):
@@ -745,7 +745,7 @@ class TestUnixTime(unittest.TestCase):
         1364781600 by epochconverter.com.
         """
         t = datetime.datetime(2013, 4, 1, 2)
-        ret = flemming.unix_time(t)
+        ret = fleming.unix_time(t)
         self.assertEquals(ret, 1364781600)
 
     def test_unix_time_arbitrary_two(self):
@@ -755,7 +755,7 @@ class TestUnixTime(unittest.TestCase):
         1385863200 by epochconverter.com.
         """
         t = datetime.datetime(2013, 12, 1, 2)
-        ret = flemming.unix_time(t)
+        ret = fleming.unix_time(t)
         self.assertEquals(ret, 1385863200)
 
     def test_unix_time_return_ms(self):
@@ -764,7 +764,7 @@ class TestUnixTime(unittest.TestCase):
         same values from test_unix_time_arbitrary_two.
         """
         t = datetime.datetime(2013, 12, 1, 2)
-        ret = flemming.unix_time(t, return_ms=True)
+        ret = fleming.unix_time(t, return_ms=True)
         self.assertEquals(ret, 1385863200 * 1000)
 
     def test_unix_time_aware_arbitrary(self):
@@ -773,10 +773,10 @@ class TestUnixTime(unittest.TestCase):
         datetime(2013, 12, 1, 2) in EST was confirmed to be
         equal to 1385881200 by epochconverter.com.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 12, 1, 7), pytz.timezone('US/Eastern'))
         self.assertEquals(t.hour, 2)
-        ret = flemming.unix_time(t)
+        ret = fleming.unix_time(t)
         self.assertEquals(ret, 1385881200)
 
     def test_unix_time_aware_arbitrary_ms(self):
@@ -786,10 +786,10 @@ class TestUnixTime(unittest.TestCase):
         equal to 1385881200 by epochconverter.com. Return value is
         in milliseconds.
         """
-        t = flemming.convert_to_tz(
+        t = fleming.convert_to_tz(
             datetime.datetime(2013, 12, 1, 7), pytz.timezone('US/Eastern'))
         self.assertEquals(t.hour, 2)
-        ret = flemming.unix_time(t, return_ms=True)
+        ret = fleming.unix_time(t, return_ms=True)
         self.assertEquals(ret, 1385881200 * 1000)
 
     def test_unix_time_naive_within_tz(self):
@@ -799,7 +799,7 @@ class TestUnixTime(unittest.TestCase):
         correct for the EST time zone.
         """
         t = datetime.datetime(2013, 12, 1, 5)
-        ret = flemming.unix_time(t, within_tz=pytz.timezone('US/Eastern'))
+        ret = fleming.unix_time(t, within_tz=pytz.timezone('US/Eastern'))
         self.assertEquals(ret, 1385856000)
         # Convert it back to a datetime objects. The values should be for midnight
         # since it was an EST time
@@ -814,7 +814,7 @@ class TestUnixTime(unittest.TestCase):
         correct for the EST time zone.
         """
         t = datetime.datetime(2013, 12, 1, 5, tzinfo=pytz.utc)
-        ret = flemming.unix_time(t, within_tz=pytz.timezone('US/Eastern'))
+        ret = fleming.unix_time(t, within_tz=pytz.timezone('US/Eastern'))
         self.assertEquals(ret, 1385856000)
         # Convert it back to a datetime objects. The values should be for midnight
         # since it was an EST time
@@ -829,7 +829,7 @@ class TestUnixTime(unittest.TestCase):
         correct for the EST time zone. Return is in milliseconds
         """
         t = datetime.datetime(2013, 12, 1, 5, tzinfo=pytz.utc)
-        ret = flemming.unix_time(t, within_tz=pytz.timezone('US/Eastern'), return_ms=True)
+        ret = fleming.unix_time(t, within_tz=pytz.timezone('US/Eastern'), return_ms=True)
         self.assertEquals(ret, 1385856000 * 1000)
         # Convert it back to a datetime objects. The values should be for midnight
         # since it was an EST time
@@ -847,7 +847,7 @@ class TestIntervals(unittest.TestCase):
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
         a count to get the range. Tests when the count is 0
         """
-        intervals = flemming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=0)
+        intervals = fleming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=0)
         self.assertEquals(list(intervals), [])
 
     def test_naive_start_day_td_count_one(self):
@@ -855,7 +855,7 @@ class TestIntervals(unittest.TestCase):
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
         a count to get the range. Tests when the count is 1
         """
-        intervals = flemming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=1)
+        intervals = fleming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=1)
         self.assertEquals(list(intervals), [datetime.datetime(2013, 3, 1, tzinfo=pytz.utc)])
 
     def test_naive_start_day_td_count(self):
@@ -863,7 +863,7 @@ class TestIntervals(unittest.TestCase):
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
         a count to get the range.
         """
-        intervals = flemming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=10)
+        intervals = fleming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=10)
         self.assertEquals(
             list(intervals), [
                 datetime.datetime(2013, 3, 1, tzinfo=pytz.utc), datetime.datetime(2013, 3, 2, tzinfo=pytz.utc),
@@ -878,7 +878,7 @@ class TestIntervals(unittest.TestCase):
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
         a count to get the range. Returns objects as naive times.
         """
-        intervals = flemming.intervals(
+        intervals = fleming.intervals(
             datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), count=10, return_naive=True)
         self.assertEquals(
             list(intervals), [
@@ -894,7 +894,7 @@ class TestIntervals(unittest.TestCase):
         Tests the intervals function with an aware start_dt parameter with a timedelta of a day. Uses
         a count to get the range.
         """
-        intervals = flemming.intervals(
+        intervals = fleming.intervals(
             datetime.datetime(2013, 3, 1, tzinfo=pytz.utc), datetime.timedelta(days=1), count=10)
         self.assertEquals(
             list(intervals), [
@@ -911,9 +911,9 @@ class TestIntervals(unittest.TestCase):
         This function crosses a DST border.
         """
         est_no_dst = pytz.timezone('US/Eastern')
-        est_dst = flemming.convert_to_tz(datetime.datetime(2013, 3, 20), est_no_dst).tzinfo
-        start_dt = flemming.convert_to_tz(datetime.datetime(2013, 3, 5, 5), est_no_dst)
-        intervals = flemming.intervals(start_dt, datetime.timedelta(days=1), count=10)
+        est_dst = fleming.convert_to_tz(datetime.datetime(2013, 3, 20), est_no_dst).tzinfo
+        start_dt = fleming.convert_to_tz(datetime.datetime(2013, 3, 5, 5), est_no_dst)
+        intervals = fleming.intervals(start_dt, datetime.timedelta(days=1), count=10)
         self.assertEquals(
             list(intervals), [
                 datetime.datetime(2013, 3, 5, tzinfo=est_no_dst), datetime.datetime(2013, 3, 6, tzinfo=est_no_dst),
@@ -928,8 +928,8 @@ class TestIntervals(unittest.TestCase):
         Tests with an EST start_dt parameter with an arbitrary timedelta. Uses a count to get the range.
         """
         est = pytz.timezone('US/Eastern')
-        start_dt = flemming.convert_to_tz(datetime.datetime(2013, 2, 5, 5), est)
-        intervals = flemming.intervals(start_dt, datetime.timedelta(days=1, hours=1), count=10)
+        start_dt = fleming.convert_to_tz(datetime.datetime(2013, 2, 5, 5), est)
+        intervals = fleming.intervals(start_dt, datetime.timedelta(days=1, hours=1), count=10)
         self.assertEquals(
             list(intervals), [
                 datetime.datetime(2013, 2, 5, tzinfo=est), datetime.datetime(2013, 2, 6, 1, tzinfo=est),
@@ -944,7 +944,7 @@ class TestIntervals(unittest.TestCase):
         Tests with a naive start doing the range within another timezone while crossing a dst border.
         """
         start_dt = datetime.datetime(2013, 3, 5, tzinfo=pytz.utc)
-        intervals = flemming.intervals(
+        intervals = fleming.intervals(
             start_dt, datetime.timedelta(days=1), count=10, within_tz=pytz.timezone('US/Eastern'))
         self.assertEquals(
             list(intervals), [
@@ -962,7 +962,7 @@ class TestIntervals(unittest.TestCase):
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
         a stop_dt to get the range.
         """
-        intervals = flemming.intervals(
+        intervals = fleming.intervals(
             datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), stop_dt=datetime.datetime(2013, 3, 11))
         self.assertEquals(
             list(intervals), [
@@ -978,7 +978,7 @@ class TestIntervals(unittest.TestCase):
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
         an inclusive stop_dt to get the range.
         """
-        intervals = flemming.intervals(
+        intervals = fleming.intervals(
             datetime.datetime(2013, 3, 1), datetime.timedelta(days=1), stop_dt=datetime.datetime(2013, 3, 11),
             is_stop_dt_inclusive=True)
         self.assertEquals(
@@ -996,9 +996,9 @@ class TestIntervals(unittest.TestCase):
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
         an inclusive stop_dt to get the range. The stop_dt is aware and in EST
         """
-        intervals = flemming.intervals(
+        intervals = fleming.intervals(
             datetime.datetime(2013, 3, 1), datetime.timedelta(days=1),
-            stop_dt=flemming.convert_to_tz(datetime.datetime(2013, 3, 11, 4), pytz.timezone('US/Eastern')),
+            stop_dt=fleming.convert_to_tz(datetime.datetime(2013, 3, 11, 4), pytz.timezone('US/Eastern')),
             is_stop_dt_inclusive=True)
         self.assertEquals(
             list(intervals), [
