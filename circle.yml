@@ -1,5 +1,0 @@
-test:
-  override:
-  - find flemming | grep .py$ | xargs ./venv/bin/pyflakes
-  - find flemming | grep .py$ | xargs ./venv/bin/pep8 --max-line-length=120
-  - ./venv/bin/nosetests --cover-branches --with-coverage --cover-min-percentage=100 --cover-package=flemming
