@@ -150,8 +150,8 @@ ValueError if floor is not a valid floor value.
     print dt
     2013-03-04 01:00:00-05:00
 
-     print fleming.floor(dt, 'year')
-     2013-01-01 00:00:00-05:00
+    print fleming.floor(dt, 'year')
+    2013-01-01 00:00:00-05:00
 
     print fleming.floor(dt, 'day')
     2013-03-04 00:00:00-05:00
