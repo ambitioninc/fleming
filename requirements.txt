@@ -1,3 +1,4 @@
+coverage
 pep8
 pyflakes
 pytz==2012h
