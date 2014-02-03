@@ -345,6 +345,68 @@ def intervals(
 
     Returns:
         A list of datetime objects.
+
+    Examples:
+        import datetime
+        import pytz
+        import fleming
+
+        # Using a naive UTC time, get intervals of time for every day.
+        for dt in fleming.intervals(datetime.datetime(2013, 2, 3), datetime.timedelta(days=1), count=5):
+            print dt
+        2013-02-03 00:00:00+00:00
+        2013-02-04 00:00:00+00:00
+        2013-02-05 00:00:00+00:00
+        2013-02-06 00:00:00+00:00
+        2013-02-07 00:00:00+00:00
+
+        # Use an EST time. Do intervals of a day. Cross the DST time border on March 10th.
+        est_dt = fleming.convert_to_tz(datetime.datetime(2013, 3, 9, 5), pytz.timezone('US/Eastern'))
+        for dt in fleming.intervals(est_dt, datetime.timedelta(days=1), count=5):
+            print dt
+        2013-03-09 00:00:00-05:00
+        2013-03-10 00:00:00-05:00
+        2013-03-11 00:00:00-04:00
+        2013-03-12 00:00:00-04:00
+        2013-03-13 00:00:00-04:00
+
+        # Similarly, we can iterate through UTC times while doing the date range with respect to EST. Note
+        # that the UTC hour changes as the DST border is crossed on March 10th.
+        for dt in fleming.intervals(
+                datetime.datetime(2013, 3, 9, 5), datetime.timedelta(days=1), within_tz=pytz.timezone('US/Eastern'),
+                count=5):
+            print dt
+        2013-03-09 05:00:00+00:00
+        2013-03-10 05:00:00+00:00
+        2013-03-11 04:00:00+00:00
+        2013-03-12 04:00:00+00:00
+        2013-03-13 04:00:00+00:00
+
+        # Use a stop time. Note that the stop time is exclusive
+        for dt in fleming.intervals(
+                datetime.datetime(2013, 3, 9), datetime.timedelta(weeks=1), stop_dt=datetime.datetime(2013, 3, 23)):
+            print dt
+        2013-03-09 00:00:00+00:00
+        2013-03-16 00:00:00+00:00
+
+        # Make the previous range inclusive
+        for dt in fleming.intervals(
+                datetime.datetime(2013, 3, 9), datetime.timedelta(weeks=1), stop_dt=datetime.datetime(2013, 3, 23),
+                is_stop_dt_inclusive=True):
+            print dt
+        2013-03-09 00:00:00+00:00
+        2013-03-16 00:00:00+00:00
+        2013-03-23 00:00:00+00:00
+
+        # Arbitrary timedeltas can be used for any sort of time range
+        for dt in fleming.intervals(
+                datetime.datetime(2013, 3, 9), datetime.timedelta(days=1, hours=2, minutes=1), count=5):
+            print dt
+        2013-03-09 00:00:00+00:00
+        2013-03-10 02:01:00+00:00
+        2013-03-11 04:02:00+00:00
+        2013-03-12 06:03:00+00:00
+        2013-03-13 08:04:00+00:00
     """
     # Make sure start_dt is aware
     start_dt = attach_tz_if_none(start_dt, pytz.utc)

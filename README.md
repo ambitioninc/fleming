@@ -188,6 +188,84 @@ ValueError if floor is not a valid floor value.
     2013-01-31 00:00:00-05:00
 
 
+### intervals(start_dt, td, within_tz=None, stop_dt=None, is_stop_dt_inclusive=False, count=0, return_naive=False)
+Returns a range of datetime objects starting from start_dt and going in increments of timedelta td. If stop_dt is specified, the intervals go to stop_dt (and include stop_dt in the return if is_stop_dt_inclusive=True). If stop_dt is None, the count variable is used to control how many iterations are in the time intervals.
+
+**Args:**
+- start_dt: A naive or aware datetime object from which to start the time intervals. If it is naive, it is assumed to be UTC.
+- td: A timedelta object describing the time interval in the intervals.
+- within_tz: A pytz timezone object. If provided, the intervals will be computed with respect to this timezone.
+- stop_dt: A naive or aware datetime object that specifies the end of the intervals. Defaults to being exclusive in the intervals. If naive, it is assumed to be in UTC.
+- is_stop_dt_inclusive: True if the stop_dt should be included in the time intervals. Defaults to False.
+- count: An integer specifying a count of intervals to use if stop_dt is None.
+- return_naive: All datetimes in the intervals are returned as naive objects.
+
+**Returns:**
+A list of datetime objects.
+
+**Examples:**
+
+    import datetime
+    import pytz
+    import fleming
+
+    # Using a naive UTC time, get intervals of time for every day.
+    for dt in fleming.intervals(datetime.datetime(2013, 2, 3), datetime.timedelta(days=1), count=5):
+        print dt
+    2013-02-03 00:00:00+00:00
+    2013-02-04 00:00:00+00:00
+    2013-02-05 00:00:00+00:00
+    2013-02-06 00:00:00+00:00
+    2013-02-07 00:00:00+00:00
+
+    # Use an EST time. Do intervals of a day. Cross the DST time border on March 10th.
+    est_dt = fleming.convert_to_tz(datetime.datetime(2013, 3, 9, 5), pytz.timezone('US/Eastern'))
+    for dt in fleming.intervals(est_dt, datetime.timedelta(days=1), count=5):
+        print dt
+    2013-03-09 00:00:00-05:00
+    2013-03-10 00:00:00-05:00
+    2013-03-11 00:00:00-04:00
+    2013-03-12 00:00:00-04:00
+    2013-03-13 00:00:00-04:00
+
+    # Similarly, we can iterate through UTC times while doing the date range with respect to EST. Note
+    # that the UTC hour changes as the DST border is crossed on March 10th.
+    for dt in fleming.intervals(
+            datetime.datetime(2013, 3, 9, 5), datetime.timedelta(days=1), within_tz=pytz.timezone('US/Eastern'),
+            count=5):
+        print dt
+    2013-03-09 05:00:00+00:00
+    2013-03-10 05:00:00+00:00
+    2013-03-11 04:00:00+00:00
+    2013-03-12 04:00:00+00:00
+    2013-03-13 04:00:00+00:00
+
+    # Use a stop time. Note that the stop time is exclusive
+    for dt in fleming.intervals(
+            datetime.datetime(2013, 3, 9), datetime.timedelta(weeks=1), stop_dt=datetime.datetime(2013, 3, 23)):
+        print dt
+    2013-03-09 00:00:00+00:00
+    2013-03-16 00:00:00+00:00
+
+    # Make the previous range inclusive
+    for dt in fleming.intervals(
+            datetime.datetime(2013, 3, 9), datetime.timedelta(weeks=1), stop_dt=datetime.datetime(2013, 3, 23),
+            is_stop_dt_inclusive=True):
+        print dt
+    2013-03-09 00:00:00+00:00
+    2013-03-16 00:00:00+00:00
+    2013-03-23 00:00:00+00:00
+
+    # Arbitrary timedeltas can be used for any sort of time range
+    for dt in fleming.intervals(
+            datetime.datetime(2013, 3, 9), datetime.timedelta(days=1, hours=2, minutes=1), count=5):
+        print dt
+    2013-03-09 00:00:00+00:00
+    2013-03-10 02:01:00+00:00
+    2013-03-11 04:02:00+00:00
+    2013-03-12 06:03:00+00:00
+    2013-03-13 08:04:00+00:00
+
 
 ### unix_time(dt, within_tz=None, return_ms=False)
 Converts a naive or aware datetime object to unix timestamp. If within_tz is present, the timestamp returned is relative to that time zone.
