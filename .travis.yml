@@ -7,6 +7,6 @@ python:
 install:
   - 'pip install -r requirements.txt'
 script:
-  - find flemming | grep .py$ | xargs ./venv/bin/pyflakes
-  - find flemming | grep .py$ | xargs ./venv/bin/pep8 --max-line-length=120
+  - find flemming | grep .py$ | xargs pyflakes
+  - find flemming | grep .py$ | xargs pep8 --max-line-length=120
   - nosetests --cover-branches --with-coverage --cover-min-percentage=100 --cover-package=flemming
