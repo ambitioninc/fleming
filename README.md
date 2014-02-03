@@ -5,7 +5,7 @@ Fleming
 
 This repository contains the Fleming package, which contains a set of routines for doing datetime manipulation. Named after Sandford Fleming, the father of worldwide standard timezones, this package is meant to aid datetime manipulations with regards to timezones.
 
-It addresses some of the common difficulties with timezones and datetime objects, such as performing arithmetic and daettie truncation across a Daylight Savings Time border. It also provides utilities for generating date ranges and getting unix times with respect to timezones.
+It addresses some of the common difficulties with timezones and datetime objects, such as performing arithmetic and datetime truncation across a Daylight Savings Time border. It also provides utilities for generating date ranges and getting unix times with respect to timezones.
 
 The functions in this package are outlined below.
 
