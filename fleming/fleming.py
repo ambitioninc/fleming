@@ -227,7 +227,7 @@ def floor(
         year: Specifies the yearly interval to round down to. Defaults to None.
         month: Specifies the monthly interval (inside of a year) to round down to. Defaults to
             None.
-        week: Specifies to round up to the beginning of the previous week. Defaults to None and
+        week: Specifies to round to the beginning of the previous week. Defaults to None and
             only accepts a possible value of 1.
         day: Specifies the daily interval to round down to (inside of a month). Defaults to None.
         hour: Specifies the hourly interval to round down to (inside of a day). Defaults to None.

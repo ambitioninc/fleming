@@ -140,7 +140,7 @@ Note that multiple combinations of attributes can be used where they make sense,
 - return_naive: A boolean specifying whether to return the datetime object as naive.
 - year: Specifies the yearly interval to round down to. Defaults to None.
 - month: Specifies the monthly interval (inside of a year) to round down to. Defaults to None.
-- week: Specifies to round up to the beginning of the previous week. Defaults to None and only accepts a possible value of 1.
+- week: Specifies to round to the beginning of the previous week. Defaults to None and only accepts a possible value of 1.
 - day: Specifies the daily interval to round down to (inside of a month). Defaults to None.
 - hour: Specifies the hourly interval to round down to (inside of a day). Defaults to None.
 - minute: Specifies the minute interval to round down to (inside of an hour). Defaults to None.
