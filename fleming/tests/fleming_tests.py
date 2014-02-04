@@ -1436,3 +1436,11 @@ class TestCeil(unittest.TestCase):
         t = datetime.datetime(2013, 5, 1, 4)
         ret = fleming.ceil(t, month=1, within_tz=pytz.timezone('US/Eastern'))
         self.assertEquals(ret, datetime.datetime(2013, 5, 1, tzinfo=pytz.utc))
+
+    def test_ceil_one_microsecond_above_interval(self):
+        """
+        Tests a ceil when it is only one microsecond above a boundary. It should still be rounded up.
+        """
+        t = datetime.datetime(2013, 5, 1, 0, 0, 0, 1)
+        ret = fleming.ceil(t, month=1, return_naive=True)
+        self.assertEquals(ret, datetime.datetime(2013, 6, 1))
