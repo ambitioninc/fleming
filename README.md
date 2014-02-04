@@ -149,7 +149,7 @@ Note that multiple combinations of attributes can be used where they make sense,
 - extra_td_if_no_floor: An extra timedelta to add to the floored result if the resulting floor is different than the input. Only used by the ceil function and not intended for use by users.
 
 **Returns:**
-An aware datetime object that results from flooring dt to floor. The timezone of the returned datetime will be equivalent to the original timezone of dt (or its DST equivalent if a DST border was crossed). If return_naive is True, the returned value has no tzinfo object.
+An aware datetime object that results from flooring dt to the previous interval. The timezone of the returned datetime will be equivalent to the original timezone of dt (or its DST equivalent if a DST border was crossed). If return_naive is True, the returned value has no tzinfo object.
 
 **Raises:**
 ValueError if the interval is an invalid value.
