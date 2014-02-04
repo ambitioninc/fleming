@@ -206,7 +206,7 @@ def floor(
     (i.e. the nearest quarter). Values for other intervals operate in the same way, such
     as rounding down to the nearest day in a month (or nearest triday).
 
-    The only paramter to this function which is not intuitive is the week parameter.
+    The only paramter to this function which is not like the others is the week parameter.
     The week parameter rounds the time down to its nearest Monday. In contrast to other
     intervals, week can only be 1 since it has no larger time interval from which to
     start a tri or quadweek for example.
@@ -241,7 +241,7 @@ def floor(
             is different than the input. Only used by the ceil function and not intended for use by users.
 
     Returns:
-        An aware datetime object that results from flooring dt to floor. The timezone of the
+        An aware datetime object that results from flooring dt to the interval. The timezone of the
         returned datetime will be equivalent to the original timezone of dt (or its DST
         equivalent if a DST border was crossed). If return_naive is True, the returned
         value has no tzinfo object.
@@ -315,6 +315,10 @@ def floor(
         # in the original timezone of EST
         print fleming.floor(dt, day=1, within_tz=pytz.timezone('US/Central'))
         2013-01-31 00:00:00-05:00
+
+        # Get the starting of a quarter by using month=3
+        print fleming.floor(datetime.datetime(2013, 2, 4), month=3)
+        2013-01-01 00:00:00+00:00
     """
     # Make sure it is aware
     dt = attach_tz_if_none(dt, pytz.utc)
@@ -394,7 +398,7 @@ def ceil(
     Args:
         dt: A naive or aware datetime object. If it is naive, it is
             assumed to be UTC
-        within_tz: A pytz timezone object. If given, the floor will
+        within_tz: A pytz timezone object. If given, the ceil will
             be performed with respect to the timezone.
         return_naive: A boolean specifying whether to return the
             datetime object as naive.
@@ -413,7 +417,7 @@ def ceil(
             Defaults to None.
 
     Returns:
-        An aware datetime object that results from flooring dt to floor. The timezone of the
+        An aware datetime object that results from ceiling dt to the next interval. The timezone of the
         returned datetime will be equivalent to the original timezone of dt (or its DST
         equivalent if a DST border was crossed). If return_naive is True, the returned
         value has no tzinfo object.
@@ -426,6 +430,46 @@ def ceil(
         import pytz
         import fleming
 
+        # Do basic ceils in naive UTC time. Results are UTC aware
+        print fleming.ceil(datetime.datetime(2013, 3, 3, 5), year=1)
+        2014-01-01 00:00:00+00:00
+
+        print fleming.ceil(datetime.datetime(2013, 3, 3, 5), month=1)
+        2013-04-01 00:00:00+00:00
+
+        # Weeks start on Monday, so the floor will be for the next Monday
+        print fleming.ceil(datetime.datetime(2013, 3, 3, 5), week=1)
+        2013-03-04 00:00:00+00:00
+
+        print fleming.ceil(datetime.datetime(2013, 3, 3, 5), day=1)
+        2013-03-04 00:00:00+00:00
+
+        # Use return_naive if you don't want to return aware datetimes
+        print fleming.ceil(
+            datetime.datetime(2013, 3, 3, 5), day=1, return_naive=True)
+        2013-03-04 00:00:00
+
+        # Peform a ceil in CST. The result is in Pacfic time
+        dt = fleming.convert_to_tz(
+            datetime.datetime(2013, 3, 4, 7), pytz.timezone('US/Pacific'))
+        print dt
+        2013-03-03 23:00:00-08:00
+
+        print fleming.ceil(dt, year=1)
+        2014-01-01 00:00:00-08:00
+
+        print fleming.ceil(dt, day=1)
+        2013-03-04 00:00:00-08:00
+
+        # Do a ceil with respect to EST. Since it is March 4 in EST, the
+        # returned value is March 5 in Pacific time
+        print fleming.ceil(dt, day=1, within_tz=pytz.timezone('US/Eastern'))
+        2013-03-05 00:00:00-08:00
+
+        # Note that doing a ceiling on a time that is already on the boundary
+        # returns the original time
+        print fleming.ceil(datetime.datetime(2013, 4, 1), month=1)
+        2013-04-01 00:00:00+00:00
     """
     # Make sure it is aware
     dt = attach_tz_if_none(dt, pytz.utc)

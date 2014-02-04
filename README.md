@@ -18,7 +18,7 @@ To install the latest code directly from source, type:
     pip install git+git://github.com/ambitioninc/fleming.git
 
 ## Function Overview
-A brief description of each function in this package is below. More detailed descriptions and advanced usage of the functions follow after that.
+A brief description of each function in this package is below. More detailed descriptions and advanced usage of the functions follow after that. Click on the function names to go to their detailed descriptions.
 - [convert_to_tz](#convert_to_tz): Converts a datetime object into a provided timezone.
 - [add_timedelta](#add_timedelta): Adds a timedelta to a datetime object.
 - [floor](#floor): Rounds a datetime object down to the previous time interval.
@@ -123,20 +123,36 @@ An aware datetime object that results from adding td to dt. The timezone of the 
     2013-03-15 00:00:00-04:00
 
 
-### floor(dt, floor, within_tz=None, return_naive=False)<a name="floor"></a>
-Perform a 'floor' on a datetime, where the floor variable can be: 'year', 'month', 'day', 'hour', 'minute', 'second', or 'week'. This function will round the datetime down to the beginning of the start of the floor.
+### floor(dt, within_tz=None, return_naive=False, year=None, month=None, week=None, day=None, hour=None, minute=None, second=None, microsecond=None)<a name="floor"></a>
+Perform a floor on a datetime, rounding the datetime to its nearest provided interval. Available intervals are year, month, week, day, hour, minute, second, and microsecond.
+
+For example, to round to the nearest month, provide month=1 as input. Give a value like 3 to the month argument and it will round to the nearest trimonth in a year (i.e. the nearest quarter). Values for other intervals operate in the same way, such as rounding down to the nearest day in a month (or nearest triday).
+
+The only paramter to this function which is not like the others is the week parameter. The week parameter rounds the time down to its nearest Monday. In contrast to other intervals, week can only be 1 since it has no larger time interval from which to start a tri or quadweek for example.
+
+Also, if the week parameter is provided, the year and month arguments are also not used in the floor calculation.
+
+Note that multiple combinations of attributes can be used where they make sense, such as flooring to the nearest trimonth and triday (month=3, day=3).
 
 **Args:**
-- dt: A naive or aware datetime object. If it is naive, it is assumed to be UTC.
-- floor: The interval to be floored. Can be 'year', 'month', 'week', 'day', 'hour', 'minute', or 'second'.
+- dt: A naive or aware datetime object. If it is naive, it is assumed to be UTC
 - within_tz: A pytz timezone object. If given, the floor will be performed with respect to the timezone.
 - return_naive: A boolean specifying whether to return the datetime object as naive.
+- year: Specifies the yearly interval to round down to. Defaults to None.
+- month: Specifies the monthly interval (inside of a year) to round down to. Defaults to None.
+- week: Specifies to round up to the beginning of the previous week. Defaults to None and only accepts a possible value of 1.
+- day: Specifies the daily interval to round down to (inside of a month). Defaults to None.
+- hour: Specifies the hourly interval to round down to (inside of a day). Defaults to None.
+- minute: Specifies the minute interval to round down to (inside of an hour). Defaults to None.
+- second: Specifies the second interval to round down to (inside of a minute). Defaults to None.
+- microsecond: Specfies the microsecond interval to round down to (inside of a second). Defaults to None.
+- extra_td_if_no_floor: An extra timedelta to add to the floored result if the resulting floor is different than the input. Only used by the ceil function and not intended for use by users.
 
 **Returns:**
 An aware datetime object that results from flooring dt to floor. The timezone of the returned datetime will be equivalent to the original timezone of dt (or its DST equivalent if a DST border was crossed). If return_naive is True, the returned value has no tzinfo object.
 
 **Raises:**
-ValueError if floor is not a valid floor value.
+ValueError if the interval is an invalid value.
 
 **Examples:**
 
@@ -145,22 +161,22 @@ ValueError if floor is not a valid floor value.
     import fleming
 
     # Do basic floors in naive UTC time. Results are UTC aware
-    print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'year')
+    print fleming.floor(datetime.datetime(2013, 3, 3, 5), year=1)
     2013-01-01 00:00:00+00:00
 
-    print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'month')
+    print fleming.floor(datetime.datetime(2013, 3, 3, 5), month=1)
     2013-03-01 00:00:00+00:00
 
     # Weeks start on Monday, so the floor will be for the previous Monday
-    print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'week')
+    print fleming.floor(datetime.datetime(2013, 3, 3, 5), week=1)
     2013-02-25 00:00:00+00:00
 
-    print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'day')
+    print fleming.floor(datetime.datetime(2013, 3, 3, 5), day=1)
     2013-03-03 00:00:00+00:00
 
     # Use return_naive if you don't want to return aware datetimes
     print fleming.floor(
-        datetime.datetime(2013, 3, 3, 5), 'day', return_naive=True)
+        datetime.datetime(2013, 3, 3, 5), day=1, return_naive=True)
     2013-03-03 00:00:00
 
     # Peform a floor in EST. The result is in EST
@@ -169,10 +185,10 @@ ValueError if floor is not a valid floor value.
     print dt
     2013-03-04 01:00:00-05:00
 
-    print fleming.floor(dt, 'year')
+    print fleming.floor(dt, year=1)
     2013-01-01 00:00:00-05:00
 
-    print fleming.floor(dt, 'day')
+    print fleming.floor(dt, day=1)
     2013-03-04 00:00:00-05:00
 
     # Now perform a floor that starts out of DST and ends up in DST. The
@@ -183,7 +199,7 @@ ValueError if floor is not a valid floor value.
     print dt
     2013-11-28 01:00:00-05:00
 
-    print fleming.floor(dt, 'month')
+    print fleming.floor(dt, month=1)
     2013-11-01 00:00:00-04:00
 
     # Start with a naive UTC time and floor it with respect to EST
@@ -191,7 +207,7 @@ ValueError if floor is not a valid floor value.
     # Since it is January 31 in EST, the resulting floored value
     # for a day will be the previous day. Also, the returned value is
     # in the original timezone of UTC
-    print fleming.floor(dt, 'day', within_tz=pytz.timezone('US/Eastern'))
+    print fleming.floor(dt, day=1, within_tz=pytz.timezone('US/Eastern'))
     2013-01-31 00:00:00+00:00
 
     # Similarly, EST values can be floored relative to CST values.
@@ -203,8 +219,84 @@ ValueError if floor is not a valid floor value.
     # Since it is January 31 in CST, the resulting floored value
     # for a day will be the previous day. Also, the returned value is
     # in the original timezone of EST
-    print fleming.floor(dt, 'day', within_tz=pytz.timezone('US/Central'))
+    print fleming.floor(dt, day=1, within_tz=pytz.timezone('US/Central'))
     2013-01-31 00:00:00-05:00
+
+    # Get the starting of a quarter by using month=3
+    print fleming.floor(datetime.datetime(2013, 2, 4), month=3)
+    2013-01-01 00:00:00+00:00
+
+
+### ceil(dt, within_tz=None, return_naive=False, year=None, month=None, week=None, day=None, hour=None, minute=None, second=None, microsecond=None)<a name="ceil"></a>
+Perform a ceil on a datetime to the next closest interval in the future. For example, if months=1, this function will round up the time to the next month in the future. Larger numbers can be used, such as months=3, to round up to the beginning of the next quarter.
+
+Note that this function allows combinations of interval variables (such as months=2 and days=2 to round up to the next duomonth of the year and next duoday of the month), but the smaller intervals are always not important since they will always be at the beginning of the larger interval.
+
+**Args:**
+- dt: A naive or aware datetime object. If it is naive, it is assumed to be UTC.
+- within_tz: A pytz timezone object. If given, the ceil will be performed with respect to the timezone.
+- return_naive: A boolean specifying whether to return the datetime object as naive.
+- year: Specifies the yearly interval to round up to. Defaults to None.
+- month: Specifies the monthly interval (inside of a year) to round up to. Defaults to None.
+- week: Specifies to round up to the beginning of the next week. Defaults to None and only accepts a possible value of 1.
+- day: Specifies the daily interval to round up to (inside of a month). Defaults to None.
+- hour: Specifies the hourly interval to round up to (inside of a day). Defaults to None.
+- minute: Specifies the minute interval to round up to (inside of an hour). Defaults to None.
+- second: Specifies the second interval to round up to (inside of a minute). Defaults to None.
+- microsecond: Specfies the microsecond interval to round up to (inside of a second). Defaults to None.
+
+**Returns:**
+An aware datetime object that results from ceiling dt to the next interval. The timezone of the returned datetime will be equivalent to the original timezone of dt (or its DST equivalent if a DST border was crossed). If return_naive is True, the returned value has no tzinfo object.
+
+**Raises:**
+ValueError if the interval is not a valid value.
+
+**Examples:**
+
+    import datetime
+    import pytz
+    import fleming
+
+    # Do basic ceils in naive UTC time. Results are UTC aware
+    print fleming.ceil(datetime.datetime(2013, 3, 3, 5), year=1)
+    2014-01-01 00:00:00+00:00
+
+    print fleming.ceil(datetime.datetime(2013, 3, 3, 5), month=1)
+    2013-04-01 00:00:00+00:00
+
+    # Weeks start on Monday, so the floor will be for the next Monday
+    print fleming.ceil(datetime.datetime(2013, 3, 3, 5), week=1)
+    2013-03-04 00:00:00+00:00
+
+    print fleming.ceil(datetime.datetime(2013, 3, 3, 5), day=1)
+    2013-03-04 00:00:00+00:00
+
+    # Use return_naive if you don't want to return aware datetimes
+    print fleming.ceil(
+        datetime.datetime(2013, 3, 3, 5), day=1, return_naive=True)
+    2013-03-04 00:00:00
+
+    # Peform a ceil in CST. The result is in Pacfic time
+    dt = fleming.convert_to_tz(
+        datetime.datetime(2013, 3, 4, 7), pytz.timezone('US/Pacific'))
+    print dt
+    2013-03-03 23:00:00-08:00
+
+    print fleming.ceil(dt, year=1)
+    2014-01-01 00:00:00-08:00
+
+    print fleming.ceil(dt, day=1)
+    2013-03-04 00:00:00-08:00
+
+    # Do a ceil with respect to EST. Since it is March 4 in EST, the
+    # returned value is March 5 in Pacific time
+    print fleming.ceil(dt, day=1, within_tz=pytz.timezone('US/Eastern'))
+    2013-03-05 00:00:00-08:00
+
+    # Note that doing a ceiling on a time that is already on the boundary
+    # returns the original time
+    print fleming.ceil(datetime.datetime(2013, 4, 1), month=1)
+    2013-04-01 00:00:00+00:00
 
 
 ### intervals(start_dt, td, within_tz=None, stop_dt=None, is_stop_dt_inclusive=False, count=0, return_naive=False)<a name="intervals"></a>
