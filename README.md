@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/ambitioninc/fleming.png)](https://travis-ci.org/ambitioninc/fleming)
-
 Fleming
 ================
 
