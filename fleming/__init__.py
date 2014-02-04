@@ -1,1 +1,1 @@
-from .fleming import convert_to_tz, add_timedelta, floor, unix_time, intervals
+from .fleming import convert_to_tz, add_timedelta, floor, ceil, unix_time, intervals
