@@ -344,5 +344,5 @@ An integer timestamp since the Unix epoch. If return_ms is True, returns the tim
     2013-02-01 00:00:00-05:00
 
 
-### License
+## License
 MIT License (see LICENSE.md)
