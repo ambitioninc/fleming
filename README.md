@@ -8,6 +8,16 @@ Fleming addresses some of the common difficulties with timezones and datetime ob
 
 Fleming accepts pytz timezone objects as parameters, and it is assumed that the user has a basic understanding of pytz. Click [here](http://pytz.sourceforge.net/) for more information about pytz.
 
+## Installation
+To install the latest release, type:
+
+    pip install fleming
+    
+To install the latest code directly from source, type:
+
+    pip install git+git://github.com/ambitioninc/fleming.git
+
+## Function Overview
 A brief description of each function in this package is below. More detailed descriptions and advanced usage of the functions follow after that.
 - convert_to_tz: Converts a datetime object into a provided timezone.
 - add_timedelta: Adds a timedelta to a datetime object.
