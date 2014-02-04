@@ -214,7 +214,7 @@ def floor(
     Also, if the week parameter is provided, the year and month arguments are also
     not used in the floor calculation.
 
-    Note that mutliple combinations of attributes can be used where they make sense,
+    Note that multiple combinations of attributes can be used where they make sense,
     such as flooring to the nearest trimonth and triday (month=3, day=3).
 
     Args:
@@ -255,22 +255,22 @@ def floor(
         import fleming
 
         # Do basic floors in naive UTC time. Results are UTC aware
-        print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'year')
+        print fleming.floor(datetime.datetime(2013, 3, 3, 5), year=1)
         2013-01-01 00:00:00+00:00
 
-        print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'month')
+        print fleming.floor(datetime.datetime(2013, 3, 3, 5), month=1)
         2013-03-01 00:00:00+00:00
 
         # Weeks start on Monday, so the floor will be for the previous Monday
-        print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'week')
+        print fleming.floor(datetime.datetime(2013, 3, 3, 5), week=1)
         2013-02-25 00:00:00+00:00
 
-        print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'day')
+        print fleming.floor(datetime.datetime(2013, 3, 3, 5), day=1)
         2013-03-03 00:00:00+00:00
 
         # Use return_naive if you don't want to return aware datetimes
         print fleming.floor(
-            datetime.datetime(2013, 3, 3, 5), 'day', return_naive=True)
+            datetime.datetime(2013, 3, 3, 5), day=1, return_naive=True)
         2013-03-03 00:00:00
 
         # Peform a floor in EST. The result is in EST
@@ -279,10 +279,10 @@ def floor(
         print dt
         2013-03-04 01:00:00-05:00
 
-        print fleming.floor(dt, 'year')
+        print fleming.floor(dt, year=1)
         2013-01-01 00:00:00-05:00
 
-        print fleming.floor(dt, 'day')
+        print fleming.floor(dt, day=1)
         2013-03-04 00:00:00-05:00
 
         # Now perform a floor that starts out of DST and ends up in DST. The
@@ -293,7 +293,7 @@ def floor(
         print dt
         2013-11-28 01:00:00-05:00
 
-        print fleming.floor(dt, 'month')
+        print fleming.floor(dt, month=1)
         2013-11-01 00:00:00-04:00
 
         # Start with a naive UTC time and floor it with respect to EST
@@ -301,7 +301,7 @@ def floor(
         # Since it is January 31 in EST, the resulting floored value
         # for a day will be the previous day. Also, the returned value is
         # in the original timezone of UTC
-        print fleming.floor(dt, 'day', within_tz=pytz.timezone('US/Eastern'))
+        print fleming.floor(dt, day=1, within_tz=pytz.timezone('US/Eastern'))
         2013-01-31 00:00:00+00:00
 
         # Similarly, EST values can be floored relative to CST values.
@@ -313,7 +313,7 @@ def floor(
         # Since it is January 31 in CST, the resulting floored value
         # for a day will be the previous day. Also, the returned value is
         # in the original timezone of EST
-        print fleming.floor(dt, 'day', within_tz=pytz.timezone('US/Central'))
+        print fleming.floor(dt, day=1, within_tz=pytz.timezone('US/Central'))
         2013-01-31 00:00:00-05:00
     """
     # Make sure it is aware
@@ -330,7 +330,7 @@ def floor(
     )
     # Initialize the index of the biggest_interval from which to start the floor
     biggest_interval_i = 0
-    # Marks if an non-None floor has been seen
+    # Marks if a non-None floor has been seen
     floor_seen = False
 
     # Week is a special case for our function, and floor only supports doing intervals of 1 for a week.

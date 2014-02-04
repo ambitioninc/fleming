@@ -12,22 +12,23 @@ Fleming accepts pytz timezone objects as parameters, and it is assumed that the 
 To install the latest release, type:
 
     pip install fleming
-    
+
 To install the latest code directly from source, type:
 
     pip install git+git://github.com/ambitioninc/fleming.git
 
 ## Function Overview
 A brief description of each function in this package is below. More detailed descriptions and advanced usage of the functions follow after that.
-- convert_to_tz: Converts a datetime object into a provided timezone.
-- add_timedelta: Adds a timedelta to a datetime object.
-- floor: Truncates a datetime object down to a time interval.
-- intervals: Gets a range of times at a given timedelta interval.
-- unix_time: Returns a unix time stamp of a datetime object.
+- [convert_to_tz](#convert_to_tz): Converts a datetime object into a provided timezone.
+- [add_timedelta](#add_timedelta): Adds a timedelta to a datetime object.
+- [floor](#floor): Rounds a datetime object down to the previous time interval.
+- [ceil](#ceil): Rounds a datetime object up to the next time interval.
+- [intervals](#intervals): Gets a range of times at a given timedelta interval.
+- [unix_time](#unix_time): Returns a unix time stamp of a datetime object.
 
 Note that all of these functions properly handle Daylight Savings Time transitions and other artifacts not normally supported in datetime manipulation. Keep reading for more detailed descriptions and examples of the functions.
 
-### convert_to_tz(dt, tz, return_naive=False)
+### convert_to_tz(dt, tz, return_naive=False)<a name="convert_to_tz"></a>
 Given an aware or naive datetime dt, convert it to the timezone tz.
 
 **Args:**
@@ -63,7 +64,7 @@ An aware datetime object that was the result of converting dt into tz. If return
     print dt
     2013-02-04 00:00:00
 
-### add_timedelta(dt, td, within_tz=None, return_naive=False)
+### add_timedelta(dt, td, within_tz=None, return_naive=False)<a name="add_timedelta"></a>
 Given a naive or aware datetime dt, add a timedelta td to it and return it. If within_tz is specified, the datetime arithmetic happens with regard to the timezone. Proper measures are used to ensure that datetime arithmetic across a DST border is handled properly.
 
 **Args:**
@@ -122,7 +123,7 @@ An aware datetime object that results from adding td to dt. The timezone of the 
     2013-03-15 00:00:00-04:00
 
 
-### floor(dt, floor, within_tz=None, return_naive=False)
+### floor(dt, floor, within_tz=None, return_naive=False)<a name="floor"></a>
 Perform a 'floor' on a datetime, where the floor variable can be: 'year', 'month', 'day', 'hour', 'minute', 'second', or 'week'. This function will round the datetime down to the beginning of the start of the floor.
 
 **Args:**
@@ -206,7 +207,7 @@ ValueError if floor is not a valid floor value.
     2013-01-31 00:00:00-05:00
 
 
-### intervals(start_dt, td, within_tz=None, stop_dt=None, is_stop_dt_inclusive=False, count=0, return_naive=False)
+### intervals(start_dt, td, within_tz=None, stop_dt=None, is_stop_dt_inclusive=False, count=0, return_naive=False)<a name="intervals"></a>
 Returns a range of datetime objects starting from start_dt and going in increments of timedelta td. If stop_dt is specified, the intervals go to stop_dt (and include stop_dt in the return if is_stop_dt_inclusive=True). If stop_dt is None, the count variable is used to control how many iterations are in the time intervals.
 
 **Args:**
@@ -285,7 +286,7 @@ A generator of datetime objects.
     2013-03-13 08:04:00+00:00
 
 
-### unix_time(dt, within_tz=None, return_ms=False)
+### unix_time(dt, within_tz=None, return_ms=False)<a name="unix_time"></a>
 Converts a naive or aware datetime object to unix timestamp. If within_tz is present, the timestamp returned is relative to that time zone.
 
 **Args:**
