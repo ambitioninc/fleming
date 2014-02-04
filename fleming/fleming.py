@@ -8,6 +8,7 @@ Authors:
 """
 import datetime
 
+from dateutil.relativedelta import relativedelta
 import pytz
 
 
@@ -192,32 +193,61 @@ def add_timedelta(dt, td, within_tz=None, return_naive=False):
     return remove_tz_if_return_naive(loc_dt, return_naive)
 
 
-def floor(dt, floor, within_tz=None, return_naive=False):
+def floor(
+        dt, within_tz=None, return_naive=False, year=None, month=None, week=None, day=None,
+        hour=None, minute=None, second=None, microsecond=None, extra_td_if_no_floor=None):
     """Floors a datetime to the nearest time boundary.
 
-    Perform a 'floor' on a datetime, where the floor variable can be:
-    'year', 'month', 'day', 'hour', 'minute', 'second', or 'week'. This
-    function will round the datetime down to the beginning of the start
-    of the floor.
+    Perform a floor on a datetime, rounding the datetime to its nearest provided interval.
+    Available intervals are year, month, week, day, hour, minute, second, and microsecond.
+
+    For example, to round to the nearest month, provide month=1 as input. Give a value
+    like 3 to the month argument and it will round to the nearest trimonth in a year
+    (i.e. the nearest quarter). Values for other intervals operate in the same way, such
+    as rounding down to the nearest day in a month (or nearest triday).
+
+    The only paramter to this function which is not like the others is the week parameter.
+    The week parameter rounds the time down to its nearest Monday. In contrast to other
+    intervals, week can only be 1 since it has no larger time interval from which to
+    start a tri or quadweek for example.
+
+    Also, if the week parameter is provided, the year and month arguments are also
+    not used in the floor calculation.
+
+    Note that multiple combinations of attributes can be used where they make sense,
+    such as flooring to the nearest trimonth and triday (month=3, day=3).
 
     Args:
         dt: A naive or aware datetime object. If it is naive, it is
             assumed to be UTC
-        floor: The interval to be floored. Can be 'year', 'month',
-            'week', 'day', 'hour', 'minute', or 'second'.
         within_tz: A pytz timezone object. If given, the floor will
             be performed with respect to the timezone.
         return_naive: A boolean specifying whether to return the
             datetime object as naive.
+        year: Specifies the yearly interval to round down to. Defaults to None.
+        month: Specifies the monthly interval (inside of a year) to round down to. Defaults to
+            None.
+        week: Specifies to round to the beginning of the previous week. Defaults to None and
+            only accepts a possible value of 1.
+        day: Specifies the daily interval to round down to (inside of a month). Defaults to None.
+        hour: Specifies the hourly interval to round down to (inside of a day). Defaults to None.
+        minute: Specifies the minute interval to round down to (inside of an hour). Defaults to
+            None.
+        second: Specifies the second interval to round down to (inside of a minute). Defaults to
+            None.
+        microsecond: Specfies the microsecond interval to round down to (inside of a second).
+            Defaults to None.
+        extra_td_if_no_floor: An extra timedelta to add to the floored result if the resulting floor
+            is different than the input. Only used by the ceil function and not intended for use by users.
 
     Returns:
-        An aware datetime object that results from flooring dt to floor. The timezone of the
+        An aware datetime object that results from flooring dt to the interval. The timezone of the
         returned datetime will be equivalent to the original timezone of dt (or its DST
         equivalent if a DST border was crossed). If return_naive is True, the returned
         value has no tzinfo object.
 
     Raises:
-        ValueError if floor is not a valid floor value.
+        ValueError if the interval is an invalid value.
 
     Examples:
         import datetime
@@ -225,22 +255,22 @@ def floor(dt, floor, within_tz=None, return_naive=False):
         import fleming
 
         # Do basic floors in naive UTC time. Results are UTC aware
-        print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'year')
+        print fleming.floor(datetime.datetime(2013, 3, 3, 5), year=1)
         2013-01-01 00:00:00+00:00
 
-        print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'month')
+        print fleming.floor(datetime.datetime(2013, 3, 3, 5), month=1)
         2013-03-01 00:00:00+00:00
 
         # Weeks start on Monday, so the floor will be for the previous Monday
-        print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'week')
+        print fleming.floor(datetime.datetime(2013, 3, 3, 5), week=1)
         2013-02-25 00:00:00+00:00
 
-        print fleming.floor(datetime.datetime(2013, 3, 3, 5), 'day')
+        print fleming.floor(datetime.datetime(2013, 3, 3, 5), day=1)
         2013-03-03 00:00:00+00:00
 
         # Use return_naive if you don't want to return aware datetimes
         print fleming.floor(
-            datetime.datetime(2013, 3, 3, 5), 'day', return_naive=True)
+            datetime.datetime(2013, 3, 3, 5), day=1, return_naive=True)
         2013-03-03 00:00:00
 
         # Peform a floor in EST. The result is in EST
@@ -249,10 +279,10 @@ def floor(dt, floor, within_tz=None, return_naive=False):
         print dt
         2013-03-04 01:00:00-05:00
 
-        print fleming.floor(dt, 'year')
+        print fleming.floor(dt, year=1)
         2013-01-01 00:00:00-05:00
 
-        print fleming.floor(dt, 'day')
+        print fleming.floor(dt, day=1)
         2013-03-04 00:00:00-05:00
 
         # Now perform a floor that starts out of DST and ends up in DST. The
@@ -263,7 +293,7 @@ def floor(dt, floor, within_tz=None, return_naive=False):
         print dt
         2013-11-28 01:00:00-05:00
 
-        print fleming.floor(dt, 'month')
+        print fleming.floor(dt, month=1)
         2013-11-01 00:00:00-04:00
 
         # Start with a naive UTC time and floor it with respect to EST
@@ -271,7 +301,7 @@ def floor(dt, floor, within_tz=None, return_naive=False):
         # Since it is January 31 in EST, the resulting floored value
         # for a day will be the previous day. Also, the returned value is
         # in the original timezone of UTC
-        print fleming.floor(dt, 'day', within_tz=pytz.timezone('US/Eastern'))
+        print fleming.floor(dt, day=1, within_tz=pytz.timezone('US/Eastern'))
         2013-01-31 00:00:00+00:00
 
         # Similarly, EST values can be floored relative to CST values.
@@ -283,33 +313,65 @@ def floor(dt, floor, within_tz=None, return_naive=False):
         # Since it is January 31 in CST, the resulting floored value
         # for a day will be the previous day. Also, the returned value is
         # in the original timezone of EST
-        print fleming.floor(dt, 'day', within_tz=pytz.timezone('US/Central'))
+        print fleming.floor(dt, day=1, within_tz=pytz.timezone('US/Central'))
         2013-01-31 00:00:00-05:00
+
+        # Get the starting of a quarter by using month=3
+        print fleming.floor(datetime.datetime(2013, 2, 4), month=3)
+        2013-01-01 00:00:00+00:00
     """
     # Make sure it is aware
     dt = attach_tz_if_none(dt, pytz.utc)
     # Localize it to time_zone if within_tz is specified
     loc_dt = convert_to_tz(dt, within_tz) if within_tz else dt
+    # Keep a copy of the original value for later use
+    orig_dt = loc_dt
 
-    # Floor the local time to its proper interval
-    if floor == 'year':
-        loc_dt = loc_dt.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-    elif floor == 'month':
-        loc_dt = loc_dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    elif floor == 'day':
-        loc_dt = loc_dt.replace(hour=0, minute=0, second=0, microsecond=0)
-    elif floor == 'hour':
-        loc_dt = loc_dt.replace(minute=0, second=0, microsecond=0)
-    elif floor == 'minute':
-        loc_dt = loc_dt.replace(second=0, microsecond=0)
-    elif floor == 'second':
-        loc_dt = loc_dt.replace(microsecond=0)
-    elif floor == 'week':
-        # Floor a week to a day and then do proper arithmetic to get to the beginning of week
-        loc_dt = loc_dt.replace(hour=0, minute=0, second=0, microsecond=0)
-        loc_dt -= datetime.timedelta(days=loc_dt.weekday())
-    else:
-        raise ValueError('{0} is not a valid floor value'.format(floor))
+    # Make a mapping of intervals to their starting value. Some intervals start at 1 (such as day and month)
+    # for datetime objects.
+    interval_starts = (
+        ('year', 0), ('month', 1), ('day', 1), ('hour', 0), ('minute', 0), ('second', 0), ('microsecond', 0)
+    )
+    # Initialize the index of the biggest_interval from which to start the floor
+    biggest_interval_i = 0
+    # Marks if a non-None floor has been seen
+    floor_seen = False
+
+    # Week is a special case for our function, and floor only supports doing intervals of 1 for a week.
+    # Check for this and do the weekly part of the floor here before doing any residual smaller time
+    # intervals
+    if week is not None:
+        # The biggest interval from which to start the floor becomes an hour
+        biggest_interval_i = 3
+        # Even though we haven't started our main floor loop, a non-None floor value ('week') has been seen
+        floor_seen = True
+        if week != 1:
+            raise ValueError('week argument can only be 1 or None')
+        else:
+            # Make the time be the starting of a week (Monday)
+            loc_dt -= datetime.timedelta(days=loc_dt.weekday())
+
+    # Starting at the largest time interval, do the following:
+    # - if a non-None floor value has not been seen and the floor value is None, populate the result
+    #   time with the value from the input
+    # - if a non-None floor value is found, do modulus arithmetic to find out its resulting value.
+    # - if a non-None floor has been seen and the floor valye is None, populate the result with the
+    #   first time for an floor interval
+    for interval, start in interval_starts[biggest_interval_i:]:
+        if locals()[interval] is None and floor_seen:
+            loc_dt = loc_dt.replace(**{interval: start})
+        elif locals()[interval] is not None:
+            floor_seen = True
+            interval_val = getattr(loc_dt, interval)
+            loc_dt = loc_dt.replace(**{
+                interval: interval_val - ((interval_val - start) % locals()[interval])
+            })
+
+    # Add any additional deltas within the proper timezone. This is currently only used by the ceil
+    # function and is not user facing. Only add the extra td if the floored result is different than
+    # the original.
+    if extra_td_if_no_floor is not None and orig_dt != loc_dt:
+        loc_dt += extra_td_if_no_floor
 
     # Set the timezone back to that of the original time. Do a DST normalization in case any
     # DST boundaries were crossed
@@ -317,6 +379,117 @@ def floor(dt, floor, within_tz=None, return_naive=False):
 
     # Return it, stripping the timezone information if return_naive
     return remove_tz_if_return_naive(loc_dt, return_naive)
+
+
+def ceil(
+        dt, within_tz=None, return_naive=False, year=None, month=None, week=None, day=None,
+        hour=None, minute=None, second=None, microsecond=None):
+    """Ceils a datetime to the nearest (above) time interval.
+
+    Perform a ceil on a datetime to the next closest interval in the future. For example,
+    if month=1, this function will round up the time to the next month in the future.
+    Larger numbers can be used, such as month=3, to round up to the beginning of the next
+    quarter.
+
+    Note that this function allows combinations of interval variables (such as month=2 and day=2
+    to round up to the next duomonth of the year and next duoday of the month), but the smaller intervals are always
+    not important since they will always be at the beginning of the larger interval.
+
+    Args:
+        dt: A naive or aware datetime object. If it is naive, it is
+            assumed to be UTC
+        within_tz: A pytz timezone object. If given, the ceil will
+            be performed with respect to the timezone.
+        return_naive: A boolean specifying whether to return the
+            datetime object as naive.
+        year: Specifies the yearly interval to round up to. Defaults to None.
+        month: Specifies the monthly interval (inside of a year) to round up to. Defaults to
+            None.
+        week: Specifies to round up to the beginning of the next week. Defaults to None and
+            only accepts a possible value of 1.
+        day: Specifies the daily interval to round up to (inside of a month). Defaults to None.
+        hour: Specifies the hourly interval to round up to (inside of a day). Defaults to None.
+        minute: Specifies the minute interval to round up to (inside of an hour). Defaults to
+            None.
+        second: Specifies the second interval to round up to (inside of a minute). Defaults to
+            None.
+        microsecond: Specfies the microsecond interval to round up to (inside of a second).
+            Defaults to None.
+
+    Returns:
+        An aware datetime object that results from ceiling dt to the next interval. The timezone of the
+        returned datetime will be equivalent to the original timezone of dt (or its DST
+        equivalent if a DST border was crossed). If return_naive is True, the returned
+        value has no tzinfo object.
+
+    Raises:
+        ValueError if the interval is not a valid value.
+
+    Examples:
+        import datetime
+        import pytz
+        import fleming
+
+        # Do basic ceils in naive UTC time. Results are UTC aware
+        print fleming.ceil(datetime.datetime(2013, 3, 3, 5), year=1)
+        2014-01-01 00:00:00+00:00
+
+        print fleming.ceil(datetime.datetime(2013, 3, 3, 5), month=1)
+        2013-04-01 00:00:00+00:00
+
+        # Weeks start on Monday, so the floor will be for the next Monday
+        print fleming.ceil(datetime.datetime(2013, 3, 3, 5), week=1)
+        2013-03-04 00:00:00+00:00
+
+        print fleming.ceil(datetime.datetime(2013, 3, 3, 5), day=1)
+        2013-03-04 00:00:00+00:00
+
+        # Use return_naive if you don't want to return aware datetimes
+        print fleming.ceil(
+            datetime.datetime(2013, 3, 3, 5), day=1, return_naive=True)
+        2013-03-04 00:00:00
+
+        # Peform a ceil in CST. The result is in Pacfic time
+        dt = fleming.convert_to_tz(
+            datetime.datetime(2013, 3, 4, 7), pytz.timezone('US/Pacific'))
+        print dt
+        2013-03-03 23:00:00-08:00
+
+        print fleming.ceil(dt, year=1)
+        2014-01-01 00:00:00-08:00
+
+        print fleming.ceil(dt, day=1)
+        2013-03-04 00:00:00-08:00
+
+        # Do a ceil with respect to EST. Since it is March 4 in EST, the
+        # returned value is March 5 in Pacific time
+        print fleming.ceil(dt, day=1, within_tz=pytz.timezone('US/Eastern'))
+        2013-03-05 00:00:00-08:00
+
+        # Note that doing a ceiling on a time that is already on the boundary
+        # returns the original time
+        print fleming.ceil(datetime.datetime(2013, 4, 1), month=1)
+        2013-04-01 00:00:00+00:00
+    """
+    # Make sure it is aware
+    dt = attach_tz_if_none(dt, pytz.utc)
+
+    # Get the largest interval provided
+    intervals = ('year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'microsecond')
+    largest_interval = None
+    for interval in intervals:
+        if locals()[interval] is not None:
+            largest_interval = interval
+            break
+
+    if largest_interval is not None:
+        # Make a timedelta for the beginning of the next interval and add it when flooring
+        td = relativedelta(**{'{0}s'.format(largest_interval): locals()[largest_interval]})
+        # Floor to the largest interval while adding the additional next largest interval
+        dt = floor(dt, within_tz=within_tz, extra_td_if_no_floor=td, **{largest_interval: locals()[largest_interval]})
+
+    # Return it, stripping the timezone information if return_naive
+    return remove_tz_if_return_naive(dt, return_naive)
 
 
 def intervals(
