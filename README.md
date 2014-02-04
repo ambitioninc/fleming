@@ -228,9 +228,9 @@ ValueError if the interval is an invalid value.
 
 
 ### ceil(dt, within_tz=None, return_naive=False, year=None, month=None, week=None, day=None, hour=None, minute=None, second=None, microsecond=None)<a name="ceil"></a>
-Perform a ceil on a datetime to the next closest interval in the future. For example, if months=1, this function will round up the time to the next month in the future. Larger numbers can be used, such as months=3, to round up to the beginning of the next quarter.
+Perform a ceil on a datetime to the next closest interval in the future. For example, if month=1, this function will round up the time to the next month in the future. Larger numbers can be used, such as month=3, to round up to the beginning of the next quarter.
 
-Note that this function allows combinations of interval variables (such as months=2 and days=2 to round up to the next duomonth of the year and next duoday of the month), but the smaller intervals are always not important since they will always be at the beginning of the larger interval.
+Note that this function allows combinations of interval variables (such as month=2 and day=2 to round up to the next duomonth of the year and next duoday of the month), but the smaller intervals are always not important since they will always be at the beginning of the larger interval.
 
 **Args:**
 - dt: A naive or aware datetime object. If it is naive, it is assumed to be UTC.
