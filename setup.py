@@ -26,7 +26,7 @@ setup(
     author_email='wesleykendall@gmail.com',
     license='MIT',
     packages=['fleming'],
-    install_requires=['pytz==2012h'],
+    install_requires=['pytz==2013.9'],
     include_package_data=True,
     zip_safe=False,
     test_suite='nose.collector',
