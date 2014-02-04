@@ -5,9 +5,18 @@ Fleming
 
 This repository contains the Fleming package, which contains a set of routines for doing datetime manipulation. Named after Sandford Fleming, the father of worldwide standard timezones, this package is meant to aid datetime manipulations with regards to timezones.
 
-It addresses some of the common difficulties with timezones and datetime objects, such as performing arithmetic and datetime truncation across a Daylight Savings Time border. It also provides utilities for generating date ranges and getting unix times with respect to timezones.
+Fleming addresses some of the common difficulties with timezones and datetime objects, such as performing arithmetic and datetime truncation across a Daylight Savings Time border. It also provides utilities for generating date ranges and getting unix times with respect to timezones.
 
-The functions in this package are outlined below.
+Fleming accepts pytz timezone objects as parameters, and it is assumed that the user has a basic understanding of pytz. Click [here](http://pytz.sourceforge.net/) for more information about pytz.
+
+A brief description of each function in this package is below. More detailed descriptions and advanced usage of the functions follow after that.
+- convert_to_tz: Converts a datetime object into a provided timezone.
+- add_timedelta: Adds a timedelta to a datetime object.
+- floor: Truncates a datetime object down to a time interval.
+- intervals: Gets a range of times at a given timedelta interval.
+- unix_time: Returns a unix time stamp of a datetime object.
+
+Note that all of these functions properly handle Daylight Savings Time transitions and other artifacts not normally supported in datetime manipulation. Keep reading for more detailed descriptions and examples of the functions.
 
 ### convert_to_tz(dt, tz, return_naive=False)
 Given an aware or naive datetime dt, convert it to the timezone tz.
