@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='fleming',
-    version='0.2',
+    version='0.3',
     description='Python helpers for manipulating datetime objects relative to time zones',
     long_description='''
         This package contains Fleming, which contains a set of routines for doing datetime
@@ -42,9 +42,9 @@ setup(
     author_email='wesleykendall@gmail.com',
     license='MIT',
     packages=['fleming'],
-    install_requires=['pytz==2013.9', 'python-dateutil==2.2'],
+    install_requires=['pytz>=2013.9', 'python-dateutil>=2.2'],
     include_package_data=True,
     zip_safe=False,
     test_suite='nose.collector',
-    tests_require=['nose==1.3.0'],
+    tests_require=['nose>=1.3.0'],
 )
