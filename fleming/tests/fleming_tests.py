@@ -788,6 +788,14 @@ class TestIntervals(unittest.TestCase):
     """
     Tests the intervals function.
     """
+    def test_only_required_arguments(self):
+        """
+        Tests the behavior of intervals when only providing the required arguments. When this happens,
+        the count keyword argument defaults to 0 and no intervals are returned.
+        """
+        intervals = fleming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1))
+        self.assertEquals(list(intervals), [])
+    
     def test_naive_start_day_td_count_zero(self):
         """
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
