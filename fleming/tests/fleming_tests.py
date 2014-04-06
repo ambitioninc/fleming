@@ -795,7 +795,7 @@ class TestIntervals(unittest.TestCase):
         """
         intervals = fleming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1))
         self.assertEquals(list(intervals), [])
-    
+
     def test_naive_start_day_td_count_zero(self):
         """
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
