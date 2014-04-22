@@ -798,6 +798,7 @@ class TestIntervals(unittest.TestCase):
         results = []
         for i in range(10):
             results.append(intervals.next())
+
         self.assertEquals(results, [
             datetime.datetime(2013, 1, 1), datetime.datetime(2013, 1, 2),
             datetime.datetime(2013, 1, 3), datetime.datetime(2013, 1, 4),
