@@ -788,13 +788,23 @@ class TestIntervals(unittest.TestCase):
     """
     Tests the intervals function.
     """
-    def test_only_required_arguments(self):
+    def test_only_required_arguments_returns_infinite_generator(self):
         """
         Tests the behavior of intervals when only providing the required arguments. When this happens,
-        the count keyword argument defaults to 0 and no intervals are returned.
+        the count keyword argument defaults to None and a generator is returned that can generate any number
+        of datetime objects.
         """
-        intervals = fleming.intervals(datetime.datetime(2013, 3, 1), datetime.timedelta(days=1))
-        self.assertEquals(list(intervals), [])
+        intervals = fleming.intervals(datetime.datetime(2013, 1, 1), datetime.timedelta(days=1))
+        results = []
+        for i in range(10):
+            results.append(intervals.next())
+        self.assertEquals(results, [
+            datetime.datetime(2013, 1, 1), datetime.datetime(2013, 1, 2),
+            datetime.datetime(2013, 1, 3), datetime.datetime(2013, 1, 4),
+            datetime.datetime(2013, 1, 5), datetime.datetime(2013, 1, 6),
+            datetime.datetime(2013, 1, 7), datetime.datetime(2013, 1, 8),
+            datetime.datetime(2013, 1, 9), datetime.datetime(2013, 1, 10),
+        ])
 
     def test_naive_start_day_td_count_zero(self):
         """
