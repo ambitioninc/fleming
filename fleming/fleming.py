@@ -514,8 +514,8 @@ def intervals(
             be in UTC.
         is_stop_dt_inclusive: True if the stop_dt should be included in the time
             intervals. Defaults to False.
-        count: If set, an integer specifying a count of intervals to use if stop_dt is None.  
-            If stop_dt is None and count is None, a generator wil lbe returned that can 
+        count: If set, an integer specifying a count of intervals to use if stop_dt is None.
+            If stop_dt is None and count is None, a generator wil lbe returned that can
             yield any number of datetime objects.
     Returns:
         A generator of datetime objects. The datetime objects are in the original timezone
