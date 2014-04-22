@@ -795,9 +795,7 @@ class TestIntervals(unittest.TestCase):
         of datetime objects.
         """
         intervals = fleming.intervals(datetime.datetime(2013, 1, 1), datetime.timedelta(days=1))
-        results = []
-        for i in range(10):
-            results.append(next(intervals))
+        results = [next(intervals) for i in range(10)]
 
         self.assertEquals(results, [
             datetime.datetime(2013, 1, 1), datetime.datetime(2013, 1, 2),
