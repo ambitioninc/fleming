@@ -500,8 +500,8 @@ def intervals(
     timedelta td. If stop_dt is specified, the intervals go to stop_dt (and include
     stop_dt in the return if is_stop_dt_inclusive=True). If stop_dt is None, the
     count variable is used to control how many iterations are in the time intervals.  If
-    the count variable is None, each iteration will return a subsequent datetime object and
-    this behavior will continue indefinitely.
+    stop_dt is None and count is None, a generator will be returned that can yield any
+    number of datetime objects.
 
     Args:
         start_dt: A naive or aware datetime object from which to start the time intervals.
@@ -514,10 +514,9 @@ def intervals(
             be in UTC.
         is_stop_dt_inclusive: True if the stop_dt should be included in the time
             intervals. Defaults to False.
-        count: If set, an integer specifying a count of intervals to use if stop_dt is None.  If 
-            count is None, intervals will continue to generate datetime objects indefinitely. 
-            Defaults to None.
-
+        count: If set, an integer specifying a count of intervals to use if stop_dt is None.  
+            If stop_dt is None and count is None, a generator wil lbe returned that can 
+            yield any number of datetime objects.
     Returns:
         A generator of datetime objects. The datetime objects are in the original timezone
         of the start_dt (or its DST equivalent if a border is crossed). If the input is
@@ -562,11 +561,11 @@ def intervals(
         # If we don't specify a count or stop time, we can iterate indefinitely.
         for dt in fleming.intervals(datetime.datetime(2013, 1, 1), datetime.timedelta(days=1)):
             print dt
-        datetime(2013, 1, 1)
-        datetime(2013, 1, 2)
-        datetime(2013, 1, 3)
+        2013-01-01 00:00:00
+        2013-01-02 00:00:00
+        2013-01-03 00:00:00
         ....
-        datetime(2014, 5, 5)
+        2013-05-05 00:00:00
         ....
         to the end of time...
 
