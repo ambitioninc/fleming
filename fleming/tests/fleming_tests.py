@@ -9,6 +9,18 @@ import pytz
 from fleming import fleming
 
 
+class TestConvertDToDt(unittest.TestCase):
+    """
+    Tests the convert_d_to_dt function.
+    """
+    def test_with_date_input(self):
+        """
+        Tests using a date input.
+        """
+        dt = fleming.convert_d_to_dt(datetime.date(2013, 3, 3))
+        self.assertEquals(dt, datetime.datetime(2013, 3, 3))
+
+
 class TestAttachTzIfNone(unittest.TestCase):
     """
     Tests the attach_tz_if_none function. Verifies that a timezone is attached to
@@ -240,6 +252,14 @@ class TestAddTimedelta(unittest.TestCase):
     """
     Tests the add_timedelta function.
     """
+    def test_add_time_delta_date(self):
+        """
+        Tests adding a time delta to a date object.
+        """
+        t = datetime.date(2013, 4, 1)
+        ret = fleming.add_timedelta(t, datetime.timedelta(days=2))
+        self.assertEquals(ret, datetime.date(2013, 4, 3))
+
     def test_naive_within_no_tz_return_naive(self):
         """
         Tests time delta arithmetic when the original time is naive and timezone
@@ -336,6 +356,14 @@ class TestFloor(unittest.TestCase):
     """
     Tests the floor function.
     """
+    def test_floor_month_date(self):
+        """
+        Tests that the floor funtion works on a date object and returns a date object.
+        """
+        t = datetime.date(2013, 4, 3)
+        t = fleming.floor(t, month=1)
+        self.assertEquals(t, datetime.date(2013, 4, 1))
+
     def test_naive_floor_year(self):
         """
         Tests flooring a naive datetime to a year and returning a naive datetime.
@@ -676,6 +704,14 @@ class TestUnixTime(unittest.TestCase):
     """
     Tests the unix_time function.
     """
+    def test_unix_time_date_object(self):
+        """
+        Tests that the unix time function works on a date object.
+        """
+        t = datetime.date(2013, 4, 1)
+        ret = fleming.unix_time(t)
+        self.assertEquals(ret, 1364774400)
+
     def test_unix_time_epoch(self):
         """
         Tests the unix_time function when the epoch is given.
@@ -788,6 +824,35 @@ class TestIntervals(unittest.TestCase):
     """
     Tests the intervals function.
     """
+    def test_intervals_date_input(self):
+        """
+        Tests the intervals function using a date as input.
+        """
+        intervals = fleming.intervals(datetime.date(2013, 3, 1), datetime.timedelta(days=1), count=10)
+        self.assertEquals(
+            list(intervals), [
+                datetime.date(2013, 3, 1), datetime.date(2013, 3, 2),
+                datetime.date(2013, 3, 3), datetime.date(2013, 3, 4),
+                datetime.date(2013, 3, 5), datetime.date(2013, 3, 6),
+                datetime.date(2013, 3, 7), datetime.date(2013, 3, 8),
+                datetime.date(2013, 3, 9), datetime.date(2013, 3, 10),
+            ])
+
+    def test_intervals_date_input_start_stop(self):
+        """
+        Tests the intervals function using a date as input for the start and stop.
+        """
+        intervals = fleming.intervals(
+            datetime.date(2013, 3, 1), datetime.timedelta(days=1), stop_dt=datetime.date(2013, 3, 11))
+        self.assertEquals(
+            list(intervals), [
+                datetime.date(2013, 3, 1), datetime.date(2013, 3, 2),
+                datetime.date(2013, 3, 3), datetime.date(2013, 3, 4),
+                datetime.date(2013, 3, 5), datetime.date(2013, 3, 6),
+                datetime.date(2013, 3, 7), datetime.date(2013, 3, 8),
+                datetime.date(2013, 3, 9), datetime.date(2013, 3, 10),
+            ])
+
     def test_naive_start_day_td_count_zero(self):
         """
         Tests the intervals function with a naive start_dt parameter with a timedelta of a day. Uses
@@ -977,6 +1042,14 @@ class TestCeil(unittest.TestCase):
     """
     Tests the ceil function.
     """
+    def test_ceil_month_date_input(self):
+        """
+        Tests a month ceiling using a date object as input.
+        """
+        t = datetime.date(2013, 3, 4)
+        t = fleming.ceil(t, month=1)
+        self.assertEquals(t, datetime.date(2013, 4, 1))
+
     def test_naive_ceil_year(self):
         """
         Tests ceiling a naive datetime to a year and returning a naive datetime.
