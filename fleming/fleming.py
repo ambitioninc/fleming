@@ -12,6 +12,27 @@ from dateutil.relativedelta import relativedelta
 import pytz
 
 
+def convert_d_to_dt(dt):
+    """
+    Converts a date object to a datetime object.
+    """
+    if type(dt) is datetime.date:
+        return datetime.datetime.combine(dt, datetime.datetime.min.time())
+    else:
+        return dt
+
+
+def convert_return_back_to_d(dt, original_input):
+    """
+    Given the original input of a function and the datetime object it produced, convert
+    it back to a date object if the original input was a date object.
+    """
+    if type(original_input) is datetime.date:
+        return dt.date()
+    else:
+        return dt
+
+
 def attach_tz_if_none(dt, tz):
     """Makes a naive timezone aware or returns it if it is already aware.
 
@@ -179,18 +200,20 @@ def add_timedelta(dt, td, within_tz=None):
         print fleming.convert_to_tz(dt, pytz.timezone('US/Eastern'))
         2013-03-15 00:00:00-04:00
     """
+    c_dt = convert_d_to_dt(dt)
+
     # Return a naive datetime object if the input is naive
-    return_naive = dt.tzinfo is None
+    return_naive = c_dt.tzinfo is None
     # Make sure it is aware
-    dt = attach_tz_if_none(dt, pytz.utc)
+    c_dt = attach_tz_if_none(c_dt, pytz.utc)
     # Localize it to time_zone if within_tz is specified
-    loc_dt = convert_to_tz(dt, within_tz) if within_tz else dt
+    loc_dt = convert_to_tz(c_dt, within_tz) if within_tz else c_dt
     # Add the time delta in the localized time zone, taking care of any DST border crossings
     loc_dt = dst_normalize(loc_dt + td)
     # Convert it back to the original timezone if within_tz was specified
-    loc_dt = convert_to_tz(loc_dt, dt.tzinfo) if within_tz else loc_dt
+    loc_dt = convert_to_tz(loc_dt, c_dt.tzinfo) if within_tz else loc_dt
     # Return it, stripping the timezone information if return_naive
-    return remove_tz_if_return_naive(loc_dt, return_naive)
+    return convert_return_back_to_d(remove_tz_if_return_naive(loc_dt, return_naive), dt)
 
 
 def floor(
@@ -318,12 +341,14 @@ def floor(
         print fleming.floor(datetime.datetime(2013, 2, 4), month=3)
         2013-01-01 00:00:00
     """
+    c_dt = convert_d_to_dt(dt)
+
     # Return naive datetimes if the input is naive
-    return_naive = dt.tzinfo is None
+    return_naive = c_dt.tzinfo is None
     # Make sure it is aware
-    dt = attach_tz_if_none(dt, pytz.utc)
+    c_dt = attach_tz_if_none(c_dt, pytz.utc)
     # Localize it to time_zone if within_tz is specified
-    loc_dt = convert_to_tz(dt, within_tz) if within_tz else dt
+    loc_dt = convert_to_tz(c_dt, within_tz) if within_tz else c_dt
     # Keep a copy of the original value for later use
     orig_dt = loc_dt
 
@@ -375,10 +400,10 @@ def floor(
 
     # Set the timezone back to that of the original time. Do a DST normalization in case any
     # DST boundaries were crossed
-    loc_dt = dst_normalize(loc_dt.replace(tzinfo=dt.tzinfo))
+    loc_dt = dst_normalize(loc_dt.replace(tzinfo=c_dt.tzinfo))
 
     # Return it, stripping the timezone information if return_naive
-    return remove_tz_if_return_naive(loc_dt, return_naive)
+    return convert_return_back_to_d(remove_tz_if_return_naive(loc_dt, return_naive), dt)
 
 
 def ceil(
@@ -469,10 +494,12 @@ def ceil(
         print fleming.ceil(datetime.datetime(2013, 4, 1), month=1)
         2013-04-01 00:00:00
     """
+    c_dt = convert_d_to_dt(dt)
+
     # Return a naive time if the input was naive
-    return_naive = dt.tzinfo is None
+    return_naive = c_dt.tzinfo is None
     # Make sure it is aware
-    dt = attach_tz_if_none(dt, pytz.utc)
+    c_dt = attach_tz_if_none(c_dt, pytz.utc)
 
     # Get the largest interval provided
     intervals = ('year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'microsecond')
@@ -486,10 +513,10 @@ def ceil(
         # Make a timedelta for the beginning of the next interval and add it when flooring
         td = relativedelta(**{'{0}s'.format(largest_interval): locals()[largest_interval]})
         # Floor to the largest interval while adding the additional next largest interval
-        dt = floor(dt, within_tz=within_tz, extra_td_if_floor=td, **{largest_interval: locals()[largest_interval]})
+        c_dt = floor(c_dt, within_tz=within_tz, extra_td_if_floor=td, **{largest_interval: locals()[largest_interval]})
 
     # Return it, stripping the timezone information if return_naive
-    return remove_tz_if_return_naive(dt, return_naive)
+    return convert_return_back_to_d(remove_tz_if_return_naive(c_dt, return_naive), dt)
 
 
 def intervals(
@@ -596,26 +623,29 @@ def intervals(
         2013-03-13 08:04:00
 
     """
+    c_start_dt = convert_d_to_dt(start_dt)
+    c_stop_dt = convert_d_to_dt(stop_dt) if stop_dt is not None else None
+
     # Return naive datetimes if the input is naive
-    return_naive = start_dt.tzinfo is None
+    return_naive = c_start_dt.tzinfo is None
     # Make sure start_dt is aware
-    start_dt = attach_tz_if_none(start_dt, pytz.utc)
+    c_start_dt = attach_tz_if_none(c_start_dt, pytz.utc)
 
     # Make sure the stop_dt is aware
-    stop_dt = attach_tz_if_none(stop_dt, pytz.utc) if stop_dt is not None else None
+    c_stop_dt = attach_tz_if_none(c_stop_dt, pytz.utc) if c_stop_dt is not None else None
 
     # Set initial time and loop iteration values
-    time_iter = start_dt
+    time_iter = c_start_dt
     loop_counter = 0
 
     while True:
         # Break when the end criterion has been met
-        if ((stop_dt is None and count is not None and loop_counter >= count) or
-                (stop_dt is not None and is_stop_dt_inclusive and time_iter > stop_dt) or
-                (stop_dt is not None and not is_stop_dt_inclusive and time_iter >= stop_dt)):
+        if ((c_stop_dt is None and count is not None and loop_counter >= count) or
+                (c_stop_dt is not None and is_stop_dt_inclusive and time_iter > c_stop_dt) or
+                (c_stop_dt is not None and not is_stop_dt_inclusive and time_iter >= c_stop_dt)):
             break
 
-        yield remove_tz_if_return_naive(time_iter, return_naive)
+        yield convert_return_back_to_d(remove_tz_if_return_naive(time_iter, return_naive), start_dt)
 
         # Increment the time iteration and the loop counter
         time_iter = add_timedelta(time_iter, td, within_tz=within_tz)
@@ -686,9 +716,12 @@ def unix_time(dt, within_tz=None, return_ms=False):
         print dt
         2013-02-01 00:00:00-05:00
     """
+    # Convert any date input to datetime objects
+    c_dt = convert_d_to_dt(dt)
+
     epoch = datetime.datetime.utcfromtimestamp(0)
-    offset = convert_to_tz(dt, within_tz).utcoffset().total_seconds() if within_tz else 0
+    offset = convert_to_tz(c_dt, within_tz).utcoffset().total_seconds() if within_tz else 0
     # Convert the timezone to UTC for arithmetic and make it naive
-    dt = convert_to_tz(dt, pytz.utc).replace(tzinfo=None)
-    unix_time = (dt - epoch).total_seconds() + offset
+    c_dt = convert_to_tz(c_dt, pytz.utc).replace(tzinfo=None)
+    unix_time = (c_dt - epoch).total_seconds() + offset
     return int(unix_time * 1000 if return_ms else unix_time)
