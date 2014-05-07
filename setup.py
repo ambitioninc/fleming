@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='fleming',
-    version='0.3.1',
+    version='0.4',
     description='Python helpers for manipulating datetime objects relative to time zones',
     long_description='''
         This package contains Fleming, which contains a set of routines for doing datetime
