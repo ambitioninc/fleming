@@ -520,13 +520,15 @@ def ceil(
 
 
 def intervals(
-        start_dt, td, within_tz=None, stop_dt=None, is_stop_dt_inclusive=False, count=0):
+        start_dt, td, within_tz=None, stop_dt=None, is_stop_dt_inclusive=False, count=None):
     """Returns a range of datetime objects with a timedelta interval.
 
     Returns a range of datetime objects starting from start_dt and going in increments of
     timedelta td. If stop_dt is specified, the intervals go to stop_dt (and include
     stop_dt in the return if is_stop_dt_inclusive=True). If stop_dt is None, the
-    count variable is used to control how many iterations are in the time intervals.
+    count variable is used to control how many iterations are in the time intervals.  If
+    stop_dt is None and count is None, a generator will be returned that can yield any
+    number of datetime objects.
 
     Args:
         start_dt: A naive or aware datetime object from which to start the time intervals.
@@ -539,8 +541,9 @@ def intervals(
             be in UTC.
         is_stop_dt_inclusive: True if the stop_dt should be included in the time
             intervals. Defaults to False.
-        count: An integer specifying a count of intervals to use if stop_dt is None.
-
+        count: If set, an integer specifying a count of intervals to use if stop_dt is None.
+            If stop_dt is None and count is None, a generator will be returned that can
+            yield any number of datetime objects.
     Returns:
         A generator of datetime objects. The datetime objects are in the original timezone
         of the start_dt (or its DST equivalent if a border is crossed). If the input is
@@ -582,6 +585,17 @@ def intervals(
         2013-03-12 04:00:00
         2013-03-13 04:00:00
 
+        # If we don't specify a count or stop time, we can iterate indefinitely.
+        for dt in fleming.intervals(datetime.datetime(2013, 1, 1), datetime.timedelta(days=1)):
+            print dt
+        2013-01-01 00:00:00
+        2013-01-02 00:00:00
+        2013-01-03 00:00:00
+        ....
+        2013-05-05 00:00:00
+        ....
+        to the end of time...
+
         # Use a stop time. Note that the stop time is exclusive
         for dt in fleming.intervals(
                 datetime.datetime(2013, 3, 9), datetime.timedelta(weeks=1), stop_dt=datetime.datetime(2013, 3, 23)):
@@ -607,6 +621,7 @@ def intervals(
         2013-03-11 04:02:00
         2013-03-12 06:03:00
         2013-03-13 08:04:00
+
     """
     c_start_dt = convert_d_to_dt(start_dt)
     c_stop_dt = convert_d_to_dt(stop_dt) if stop_dt is not None else None
@@ -625,7 +640,7 @@ def intervals(
 
     while True:
         # Break when the end criterion has been met
-        if ((c_stop_dt is None and loop_counter >= count) or
+        if ((c_stop_dt is None and count is not None and loop_counter >= count) or
                 (c_stop_dt is not None and is_stop_dt_inclusive and time_iter > c_stop_dt) or
                 (c_stop_dt is not None and not is_stop_dt_inclusive and time_iter >= c_stop_dt)):
             break
