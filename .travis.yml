@@ -4,7 +4,7 @@ python:
   - '3.2'
   - '3.3'
 install:
-  - 'pip install -r requirements.txt'
+  - 'pip install -r requirements/test.txt'
 script:
   - find fleming | grep .py$ | grep -v __init__.py | xargs pyflakes
   - find fleming | grep .py$ | xargs pep8 --max-line-length=120
