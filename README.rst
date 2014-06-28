@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/ambitioninc/fleming.png)](https://travis-ci.org/ambitioninc/fleming)
+.. image:: https://travis-ci.org/ambitioninc/fleming.png
+   :target: https://travis-ci.org/ambitioninc/fleming
 
 Fleming
 =======
