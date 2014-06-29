@@ -30,7 +30,7 @@ Code Quality
 For code quality, please run::
 
     $ pip install flake8
-    $ flake8 . --max-line-length=120 --max-complexity=10 --exclude='docs,env,*.egg'
+    $ flake8 .
 
 Code Styling
 ------------
