@@ -66,4 +66,5 @@ setup(
     include_package_data=True,
     zip_safe=False,
     test_suite='nose.collector',
+    tests_require=['coverage==3.7.1'],
 )
