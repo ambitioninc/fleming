@@ -17,6 +17,7 @@ running::
     $ cd fleming
     $ virtualenv env
     $ . env/bin/activate
+    $ pip install nose>=1.3.0
     $ python setup.py install
     $ python setup.py nosetests
 
