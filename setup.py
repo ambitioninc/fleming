@@ -1,4 +1,7 @@
 import re
+# import multiprocessing to avoid this bug (http://bugs.python.org/issue15881#msg170215)
+import multiprocessing
+assert multiprocessing
 from setuptools import setup
 
 
@@ -55,9 +58,12 @@ setup(
     author_email='wesleykendall@gmail.com',
     license='MIT',
     packages=['fleming'],
-    install_requires=['pytz>=2013.9', 'python-dateutil>=2.2'],
+    install_requires=[
+        'pytz>=2013.9',
+        'python-dateutil>=2.2',
+        'nose>=1.3.0',
+    ],
     include_package_data=True,
     zip_safe=False,
     test_suite='nose.collector',
-    tests_require=['nose>=1.3.0'],
 )

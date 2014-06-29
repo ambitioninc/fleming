@@ -46,7 +46,7 @@ class TestAttachTzIfNone(unittest.TestCase):
         self.assertIsNone(naive_t.tzinfo)
         ret = fleming.attach_tz_if_none(naive_t, pytz.timezone('US/Eastern'))
         # Time should now have a utc tzinfo object
-        self.assertEquals(ret.tzinfo, pytz.timezone('US/Eastern'))
+        self.assertEquals(ret.tzinfo, pytz.timezone('US/Eastern').localize(naive_t).tzinfo)
 
     def test_existing_tz_attach_utc(self):
         """
@@ -112,7 +112,7 @@ class TestConvertToTz(unittest.TestCase):
         naive_t = datetime.datetime(2013, 2, 1, 12)
         ret = fleming.convert_to_tz(naive_t, pytz.timezone('US/Eastern'))
         # In this time, eastern standard time is 5 hours before UTC
-        self.assertEquals(ret, datetime.datetime(2013, 2, 1, 7, tzinfo=pytz.timezone('US/Eastern')))
+        self.assertEquals(ret, pytz.timezone('US/Eastern').localize(datetime.datetime(2013, 2, 1, 7)))
 
     def test_aware_utc_to_est_return_aware(self):
         """
@@ -121,16 +121,16 @@ class TestConvertToTz(unittest.TestCase):
         aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.utc)
         ret = fleming.convert_to_tz(aware_t, pytz.timezone('US/Eastern'))
         # In this time, eastern standard time is 5 hours before UTC
-        self.assertEquals(ret, datetime.datetime(2013, 2, 1, 7, tzinfo=pytz.timezone('US/Eastern')))
+        self.assertEquals(ret, pytz.timezone('US/Eastern').localize(datetime.datetime(2013, 2, 1, 7)))
 
     def test_aware_est_to_cst_return_aware(self):
         """
         Tests converting an aware datetime in EST to CST where the return value is aware.
         """
-        aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.timezone('US/Eastern'))
+        aware_t = pytz.timezone('US/Eastern').localize(datetime.datetime(2013, 2, 1, 12))
         ret = fleming.convert_to_tz(aware_t, pytz.timezone('US/Central'))
         # Central time zone is one hour behind eastern
-        self.assertEquals(ret, datetime.datetime(2013, 2, 1, 11, tzinfo=pytz.timezone('US/Central')))
+        self.assertEquals(ret, pytz.timezone('US/Central').localize(datetime.datetime(2013, 2, 1, 11)))
 
     def test_convert_naive_utc_to_est_return_naive(self):
         """
@@ -155,7 +155,7 @@ class TestConvertToTz(unittest.TestCase):
         """
         Tests converting an aware datetime in EST to CST where the return value is naive.
         """
-        aware_t = datetime.datetime(2013, 2, 1, 12, tzinfo=pytz.timezone('US/Eastern'))
+        aware_t = pytz.timezone('US/Eastern').localize(datetime.datetime(2013, 2, 1, 12))
         ret = fleming.convert_to_tz(aware_t, pytz.timezone('US/Central'), return_naive=True)
         # Central time zone is one hour behind eastern
         self.assertEquals(ret, datetime.datetime(2013, 2, 1, 11))
@@ -183,8 +183,7 @@ class TestDstNormalize(unittest.TestCase):
         in dst.
         """
         est = pytz.timezone('US/Eastern')
-        aware_t = datetime.datetime(2013, 3, 7, tzinfo=est)
-        aware_t = est.normalize(aware_t)
+        aware_t = est.localize(datetime.datetime(2013, 3, 7))
         # The time zone should not initially be in DST
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # After adding a week to it using a normal timedelta, it should be in dst now
@@ -198,7 +197,7 @@ class TestDstNormalize(unittest.TestCase):
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(hours=1))
         # Verify that all of the time values are correct (i.e. verify an extra hour wasn't added
         # because of the DST crossover
-        self.assertEquals(ret, datetime.datetime(2013, 3, 14, tzinfo=ret.tzinfo))
+        self.assertEquals(ret, ret.tzinfo.localize(datetime.datetime(2013, 3, 14)))
 
     def test_change_in_tz_out_of_dst(self):
         """
@@ -207,10 +206,7 @@ class TestDstNormalize(unittest.TestCase):
         out of dst (the original time is in dst).
         """
         est = pytz.timezone('US/Eastern')
-        aware_t = datetime.datetime(2013, 11, 1, tzinfo=est)
-        aware_t = est.normalize(aware_t)
-        # Verify that our initial test time had an hour added to it because of normalization
-        self.assertEquals(aware_t, datetime.datetime(2013, 11, 1, 1, tzinfo=aware_t.tzinfo))
+        aware_t = est.localize(datetime.datetime(2013, 11, 1))
         # The time zone should initially be in DST
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(hours=1))
         # After adding a week to it using a normal timedelta, it should not be in dst now
@@ -224,7 +220,7 @@ class TestDstNormalize(unittest.TestCase):
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         # Verify that all of the time values are correct (i.e. verify an extra hour wasn't added
         # because of the DST crossover
-        self.assertEquals(ret, datetime.datetime(2013, 11, 8, 1, tzinfo=ret.tzinfo))
+        self.assertEquals(ret, ret.tzinfo.localize(datetime.datetime(2013, 11, 8)))
 
     def test_no_change_in_tz(self):
         """
@@ -232,7 +228,7 @@ class TestDstNormalize(unittest.TestCase):
         datetimes should be identical.
         """
         est = pytz.timezone('US/Eastern')
-        aware_t = datetime.datetime(2013, 1, 7, tzinfo=est)
+        aware_t = est.localize(datetime.datetime(2013, 1, 7))
         aware_t = est.normalize(aware_t)
         # The time zone should not initially be in DST
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
@@ -245,7 +241,7 @@ class TestDstNormalize(unittest.TestCase):
         # Verify the time zone of the returned is not in DST
         self.assertEquals(ret.tzinfo.dst(ret), datetime.timedelta(0))
         # Verify that all of the time values are correct
-        self.assertEquals(ret, datetime.datetime(2013, 1, 14, tzinfo=ret.tzinfo))
+        self.assertEquals(ret, ret.tzinfo.localize(datetime.datetime(2013, 1, 14)))
 
 
 class TestAddTimedelta(unittest.TestCase):
@@ -290,7 +286,7 @@ class TestAddTimedelta(unittest.TestCase):
         # Assert that it isn't in DST
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # Assert the values are midnight for EST
-        self.assertEquals(aware_t, datetime.datetime(2013, 3, 1, tzinfo=pytz.timezone('US/Eastern')))
+        self.assertEquals(aware_t, pytz.timezone('US/Eastern').localize(datetime.datetime(2013, 3, 1)))
 
         # Add a timedelta across the DST transition (Mar 10)
         ret = fleming.add_timedelta(aware_t, datetime.timedelta(weeks=2))
@@ -339,7 +335,7 @@ class TestAddTimedelta(unittest.TestCase):
         # Assert that it isn't in DST
         self.assertEquals(aware_t.tzinfo.dst(aware_t), datetime.timedelta(0))
         # Assert the values are midnight for EST
-        self.assertEquals(aware_t, datetime.datetime(2013, 3, 1, tzinfo=pytz.timezone('US/Eastern')))
+        self.assertEquals(aware_t, pytz.timezone('US/Eastern').localize(datetime.datetime(2013, 3, 1)))
 
         # Add a timedelta across the DST transition (Mar 10) within CST
         ret = fleming.add_timedelta(
@@ -943,11 +939,16 @@ class TestIntervals(unittest.TestCase):
         intervals = fleming.intervals(start_dt, datetime.timedelta(days=1), count=10)
         self.assertEquals(
             list(intervals), [
-                datetime.datetime(2013, 3, 5, tzinfo=est_no_dst), datetime.datetime(2013, 3, 6, tzinfo=est_no_dst),
-                datetime.datetime(2013, 3, 7, tzinfo=est_no_dst), datetime.datetime(2013, 3, 8, tzinfo=est_no_dst),
-                datetime.datetime(2013, 3, 9, tzinfo=est_no_dst), datetime.datetime(2013, 3, 10, tzinfo=est_no_dst),
-                datetime.datetime(2013, 3, 11, tzinfo=est_dst), datetime.datetime(2013, 3, 12, tzinfo=est_dst),
-                datetime.datetime(2013, 3, 13, tzinfo=est_dst), datetime.datetime(2013, 3, 14, tzinfo=est_dst),
+                est_no_dst.localize(datetime.datetime(2013, 3, 5)),
+                est_no_dst.localize(datetime.datetime(2013, 3, 6)),
+                est_no_dst.localize(datetime.datetime(2013, 3, 7)),
+                est_no_dst.localize(datetime.datetime(2013, 3, 8)),
+                est_no_dst.localize(datetime.datetime(2013, 3, 9)),
+                est_no_dst.localize(datetime.datetime(2013, 3, 10)),
+                est_dst.localize(datetime.datetime(2013, 3, 11)),
+                est_dst.localize(datetime.datetime(2013, 3, 12)),
+                est_dst.localize(datetime.datetime(2013, 3, 13)),
+                est_dst.localize(datetime.datetime(2013, 3, 14)),
             ])
 
     def test_est_start_arbitrary_td_count(self):
@@ -959,11 +960,16 @@ class TestIntervals(unittest.TestCase):
         intervals = fleming.intervals(start_dt, datetime.timedelta(days=1, hours=1), count=10)
         self.assertEquals(
             list(intervals), [
-                datetime.datetime(2013, 2, 5, tzinfo=est), datetime.datetime(2013, 2, 6, 1, tzinfo=est),
-                datetime.datetime(2013, 2, 7, 2, tzinfo=est), datetime.datetime(2013, 2, 8, 3, tzinfo=est),
-                datetime.datetime(2013, 2, 9, 4, tzinfo=est), datetime.datetime(2013, 2, 10, 5, tzinfo=est),
-                datetime.datetime(2013, 2, 11, 6, tzinfo=est), datetime.datetime(2013, 2, 12, 7, tzinfo=est),
-                datetime.datetime(2013, 2, 13, 8, tzinfo=est), datetime.datetime(2013, 2, 14, 9, tzinfo=est),
+                est.localize(datetime.datetime(2013, 2, 5)),
+                est.localize(datetime.datetime(2013, 2, 6, 1)),
+                est.localize(datetime.datetime(2013, 2, 7, 2)),
+                est.localize(datetime.datetime(2013, 2, 8, 3)),
+                est.localize(datetime.datetime(2013, 2, 9, 4)),
+                est.localize(datetime.datetime(2013, 2, 10, 5)),
+                est.localize(datetime.datetime(2013, 2, 11, 6)),
+                est.localize(datetime.datetime(2013, 2, 12, 7)),
+                est.localize(datetime.datetime(2013, 2, 13, 8)),
+                est.localize(datetime.datetime(2013, 2, 14, 9)),
             ])
 
     def test_aware_within_est_day_td_dst_cross(self):
@@ -1225,7 +1231,7 @@ class TestCeil(unittest.TestCase):
         # Original time zone should not be in DST
         self.assertEquals(t.tzinfo.dst(t), datetime.timedelta(0))
         ret = fleming.ceil(t, day=1)
-        self.assertEquals(ret, datetime.datetime(2013, 3, 5, tzinfo=pytz.timezone('US/Eastern')))
+        self.assertEquals(ret, pytz.timezone('US/Eastern').localize(datetime.datetime(2013, 3, 5)))
 
     def test_aware_ceil_hour(self):
         """

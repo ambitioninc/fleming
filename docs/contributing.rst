@@ -10,16 +10,15 @@ existing issues before filing a new one!
 Running the tests
 -----------------
 
-Once you have cloned the source code, you can run the code quality and unit
-tests by running::
+To cloned the source code, you can run the code quality and unit tests by
+running::
 
     $ git clone git://github.com/ambitioninc/fleming.git
     $ cd fleming
     $ virtualenv env
     $ . env/bin/activate
     $ python setup.py install
-    $ pip install -r requirements/test.txt
-    $ nosetests --cover-branches --with-coverage --cover-min-percentage=100 --cover-package=fleming
+    $ python setup.py nosetests
 
 While 100% code coverage does not make a library bug-free, it significantly
 reduces the number of easily caught bugs! Please make sure coverage is at 100%
@@ -30,8 +29,8 @@ Code Quality
 
 For code quality, please run::
 
-    $ find fleming | grep .py$ | grep -v __init__.py | xargs pyflakes
-    $ find fleming | grep .py$ | xargs pep8 --max-line-length=120
+    $ pip install flake8
+    $ flake8 . --max-line-length=120 --max-complexity=10 --exclude='docs,env,*.egg'
 
 Code Styling
 ------------
