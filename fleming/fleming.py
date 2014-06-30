@@ -2,9 +2,9 @@
 Provides helpers for manipulating datetime objects with respect to time zones.
 
 Authors:
-    Wes Kendall (https://github.com/wesleykendall)
-    Jeff McRiffey (https://github.com/jmcriffey)
-    Josh Marlow (https://github.com/joshmarlow)
+    * Wes Kendall (https://github.com/wesleykendall)
+    * Jeff McRiffey (https://github.com/jmcriffey)
+    * Josh Marlow (https://github.com/joshmarlow)
 """
 import datetime
 
@@ -15,6 +15,11 @@ import pytz
 def convert_d_to_dt(dt):
     """
     Converts a date object to a datetime object.
+
+    :type dt: date
+    :param dt: The date to convert
+
+    :rtype: datetime
     """
     if type(dt) is datetime.date:
         return datetime.datetime.combine(dt, datetime.datetime.min.time())
@@ -34,56 +39,68 @@ def convert_return_back_to_d(dt, original_input):
 
 
 def attach_tz_if_none(dt, tz):
-    """Makes a naive timezone aware or returns it if it is already aware.
+    """
+    Makes a naive timezone aware or returns it if it is already aware.
 
     Attaches the timezone tz to the datetime dt if dt has no tzinfo. If
     dt already has tzinfo set, return dt.
 
-    Args:
-        dt: A naive or aware datetime object.
-        tz: A pytz timezone object.
+    :type dt: datetime
+    :param dt: A naive or aware datetime object.
 
-    Returns:
-        An aware datetime dt with tzinfo set to tz. If dt already had tzinfo
-        set, dt is returned unchanged.
+    :type tz: pytz timezone
+    :param tz: The timezone to add to the datetime
+
+    :rtype: datetime
+    :returns: An aware datetime dt with tzinfo set to tz. If dt already had
+        tzinfo set, dt is returned unchanged.
     """
     return tz.localize(dt) if dt.tzinfo is None else dt
 
 
 def remove_tz_if_return_naive(dt, return_naive):
-    """A helper function to strip tzinfo objects if return_naive is True.
+    """
+    A helper function to strip tzinfo objects if return_naive is True.
 
     Returns a naive datetime object if return_naive is True.
 
-    Args:
-        dt: A datetime object.
-        return_naive: A boolean.
+    :type dt: datetime
+    :param dt: The datetime
 
-    Returns:
-        A naive dt if return_naive is True.
+    :type return_naive: bool
+    :param return_naive: Make datetime naive if True
+
+    :rtype: datetime
+    :returns: A naive dt if return_naive is True.
     """
     return dt.replace(tzinfo=None) if return_naive else dt
 
 
 def convert_to_tz(dt, tz, return_naive=False):
-    """Converts a time into another timezone.
+    """
+    Converts a time into another timezone.
 
     Given an aware or naive datetime dt, convert it to the timezone tz.
 
-    Args:
-        dt: A naive or aware datetime object. If dt is naive, it has UTC
-            set as its timezone.
-        tz: A pytz timezone object specifying the timezone to which dt
-            should be converted.
-        return_naive: A boolean describing whether the return value
-            should be a naive datetime object.
+    :type dt: datetime
+    :param dt: A naive or aware datetime object. If dt is naive, it has UTC
+        set as its timezone.
 
-    Returns:
-        An aware datetime object that was the result of converting dt
+    :type tz: pytz timezone
+    :param tz: A pytz timezone object specifying the timezone to which dt
+        should be converted.
+
+    :type return_naive: bool
+    :param return_naive: A boolean describing whether the return value
+        should be a naive datetime object.
+
+    :rtype: datetime
+    :returns: An aware datetime object that was the result of converting dt
         into tz. If return_naive is True, the returned value has no
         tzinfo set.
 
-    Examples:
+    Examples::
+
         import fleming
         import datetime
         import pytz
@@ -106,13 +123,15 @@ def convert_to_tz(dt, tz, return_naive=False):
         dt = fleming.convert_to_tz(dt, pytz.utc, return_naive=True)
         print dt
         2013-02-04 00:00:00
+
     """
     return remove_tz_if_return_naive(
         tz.normalize(attach_tz_if_none(dt, pytz.utc)), return_naive)
 
 
 def dst_normalize(dt):
-    """Normalizes a datetime that crossed a DST border to its new DST timezone.
+    """
+    Normalizes a datetime that crossed a DST border to its new DST timezone.
 
     Given an aware datetime object dt, call pytz's normalize function on dt's timezone
     If dt had crossed a DST border because of datetime arithmetic, its timezone will
@@ -124,38 +143,46 @@ def dst_normalize(dt):
     Since march 11 overlaps DST, this datetime object is really in EDT. The returned value would be
     t = 2013/03/11:05:00:00 EDT.
 
-    Args:
-        dt: An aware datetime object.
+    :type dt: datetime
+    :param dt: The aware datetime object.
 
-    Returns:
-        An aware datetime object that has time value identical to dt. The only possible difference
-        is that its timezone might have been converted into a DST timezone.
+    :rtype: datetime
+    :returns: An aware datetime object that has time value identical to dt. The
+        only possible difference is that its timezone might have been converted
+        into a DST timezone.
     """
     return dt.replace(tzinfo=convert_to_tz(dt, dt.tzinfo).tzinfo)
 
 
 def add_timedelta(dt, td, within_tz=None):
-    """Adds a timedelta to a datetime. Can add timedeltas relative to a timezone.
+    """
+    Adds a timedelta to a datetime. Can add timedeltas relative to a timezone.
 
-    Given a naive or aware datetime dt, add a timedelta td to it and return it. If
-    within_tz is specified, the datetime arithmetic happens with regard to the timezone.
-    Proper measures are used to ensure that datetime arithmetic across a DST border
-    is handled properly.
+    Given a naive or aware datetime dt, add a timedelta td to it and return it.
+    If within_tz is specified, the datetime arithmetic happens with regard to
+    the timezone. Proper measures are used to ensure that datetime arithmetic
+    across a DST border is handled properly.
 
-    Args:
-        dt: A naive or aware datetime object. If it is naive, it is assumed to be UTC.
-        td: A timedelta (or relativedelta) object to add to dt.
-        within_tz: A pytz timezone object. If provided, dt will be converted to this
-            timezone before datetime arithmetic and then converted back to its original
-            timezone afterwards.
+    :type dt: datetime
+    :param dt: A naive or aware datetime object. If it is naive, it is assumed
+        to be UTC.
 
-    Returns:
-        A datetime object that results from adding td to dt. The timezone of the
-        returned datetime will be equivalent to the original timezone of dt (or its DST
-        equivalent if a DST border was crossed). If the original time was naive, the
-        returned value is naive.
+    :type td: timedelta
+    :param td: A timedelta (or relativedelta) object to add to dt.
 
-    Examples:
+    :type within_tz: pytz timezone
+    :param within_tz: A pytz timezone object. If provided, dt will be converted
+        to this timezone before datetime arithmetic and then converted back to
+        its original timezone afterwards.
+
+    :rtype: datetime
+    :returns: A datetime object that results from adding td to dt. The timezone
+        of the returned datetime will be equivalent to the original timezone of
+        dt (or its DST equivalent if a DST border was crossed). If the original
+        time was naive, the returned value is naive.
+
+    Examples::
+
         import pytz
         import datetime
         import fleming
@@ -199,6 +226,7 @@ def add_timedelta(dt, td, within_tz=None):
         # However, the hours in EST still reflect midnight
         print fleming.convert_to_tz(dt, pytz.timezone('US/Eastern'))
         2013-03-15 00:00:00-04:00
+
     """
     c_dt = convert_d_to_dt(dt)
 
@@ -219,7 +247,8 @@ def add_timedelta(dt, td, within_tz=None):
 def floor(
         dt, within_tz=None, year=None, month=None, week=None, day=None, hour=None, minute=None,
         second=None, microsecond=None, extra_td_if_floor=None):
-    """Floors a datetime to the nearest time boundary.
+    """
+    Floors a datetime to the nearest time boundary.
 
     Perform a floor on a datetime, rounding the datetime to its nearest provided interval.
     Available intervals are year, month, week, day, hour, minute, second, and microsecond.
@@ -240,37 +269,60 @@ def floor(
     Note that multiple combinations of attributes can be used where they make sense,
     such as flooring to the nearest trimonth and triday (month=3, day=3).
 
-    Args:
-        dt: A naive or aware datetime object. If it is naive, it is
-            assumed to be UTC
-        within_tz: A pytz timezone object. If given, the floor will
-            be performed with respect to the timezone.
-        year: Specifies the yearly interval to round down to. Defaults to None.
-        month: Specifies the monthly interval (inside of a year) to round down to. Defaults to
-            None.
-        week: Specifies to round to the beginning of the previous week. Defaults to None and
-            only accepts a possible value of 1.
-        day: Specifies the daily interval to round down to (inside of a month). Defaults to None.
-        hour: Specifies the hourly interval to round down to (inside of a day). Defaults to None.
-        minute: Specifies the minute interval to round down to (inside of an hour). Defaults to
-            None.
-        second: Specifies the second interval to round down to (inside of a minute). Defaults to
-            None.
-        microsecond: Specfies the microsecond interval to round down to (inside of a second).
-            Defaults to None.
-        extra_td_if_floor: Only used by the ceil function. Specifies an extra timedelta to
-            be added to the result if a floor has occurred.
+    :type dt: datetime
+    :param dt: A naive or aware datetime object. If it is naive, it is
+        assumed to be UTC
 
-    Returns:
-        A datetime object that results from flooring dt to the interval. The timezone of the
-        returned datetime will be equivalent to the original timezone of dt (or its DST
-        equivalent if a DST border was crossed). If the input time was naive, it returns
-        a naive datetime object.
+    :type within_tz: pytz timezone
+    :param within_tz: A pytz timezone object. If given, the floor will
+        be performed with respect to the timezone.
 
-    Raises:
-        ValueError if the interval is an invalid value.
+    :type year: int
+    :param year: Specifies the yearly interval to round down to. Defaults to None.
 
-    Examples:
+    :type month: int
+    :param month: Specifies the monthly interval (inside of a year) to round
+        down to. Defaults to None.
+
+    :type week: int
+    :param week: Specifies to round to the beginning of the previous week.
+        Defaults to None and only accepts a possible value of 1.
+
+    :type day: int
+    :param day: Specifies the daily interval to round down to (inside of a
+        month). Defaults to None.
+
+    :type hour: int
+    :param hour: Specifies the hourly interval to round down to (inside of a
+        day). Defaults to None.
+
+    :type minute: int
+    :param minute: Specifies the minute interval to round down to (inside of an
+        hour). Defaults to None.
+
+    :type second: int
+    :param second: Specifies the second interval to round down to (inside of a
+        minute). Defaults to None.
+
+    :type microsecond: int
+    :param microsecond: Specifies the microsecond interval to round down to
+        (inside of a second). Defaults to None.
+
+    :type extra_td_if_floor: timedelta
+    :param extra_td_if_floor: Only used by the ceil function. Specifies an
+        extra timedelta to be added to the result if a floor has occurred.
+
+    :rtype: datetime
+    :returns: A datetime object that results from flooring dt to the interval.
+        The timezone of the returned datetime will be equivalent to the
+        original timezone of dt (or its DST equivalent if a DST border was
+        crossed). If the input time was naive, it returns a naive datetime
+        object.
+
+    :raises: ValueError if the interval is an invalid value.
+
+    Examples::
+
         import datetime
         import pytz
         import fleming
@@ -340,6 +392,7 @@ def floor(
         # Get the starting of a quarter by using month=3
         print fleming.floor(datetime.datetime(2013, 2, 4), month=3)
         2013-01-01 00:00:00
+
     """
     c_dt = convert_d_to_dt(dt)
 
@@ -409,7 +462,8 @@ def floor(
 def ceil(
         dt, within_tz=None, year=None, month=None, week=None, day=None, hour=None, minute=None,
         second=None, microsecond=None):
-    """Ceils a datetime to the nearest (above) time interval.
+    """
+    Ceils a datetime to the nearest (above) time interval.
 
     Perform a ceil on a datetime to the next closest interval in the future. For example,
     if month=1, this function will round up the time to the next month in the future.
@@ -420,35 +474,55 @@ def ceil(
     to round up to the next duomonth of the year and next duoday of the month), but the smaller intervals are always
     not important since they will always be at the beginning of the larger interval.
 
-    Args:
-        dt: A naive or aware datetime object. If it is naive, it is
-            assumed to be UTC
-        within_tz: A pytz timezone object. If given, the ceil will
-            be performed with respect to the timezone.
-        year: Specifies the yearly interval to round up to. Defaults to None.
-        month: Specifies the monthly interval (inside of a year) to round up to. Defaults to
-            None.
-        week: Specifies to round up to the beginning of the next week. Defaults to None and
-            only accepts a possible value of 1.
-        day: Specifies the daily interval to round up to (inside of a month). Defaults to None.
-        hour: Specifies the hourly interval to round up to (inside of a day). Defaults to None.
-        minute: Specifies the minute interval to round up to (inside of an hour). Defaults to
-            None.
-        second: Specifies the second interval to round up to (inside of a minute). Defaults to
-            None.
-        microsecond: Specfies the microsecond interval to round up to (inside of a second).
-            Defaults to None.
+    :type dt: datetime
+    :param dt: A naive or aware datetime object. If it is naive, it is assumed
+        to be UTC
 
-    Returns:
-        A datetime object that results from ceiling dt to the next interval. The timezone of the
-        returned datetime will be equivalent to the original timezone of dt (or its DST
-        equivalent if a DST border was crossed). If the original datetime object was naive,
-        the returned object is naive.
+    :type within_tz: pytz timezone
+    :param within_tz: A pytz timezone object. If given, the ceil will be
+        performed with respect to the timezone.
 
-    Raises:
-        ValueError if the interval is not a valid value.
+    :type year: int
+    :param year: Specifies the yearly interval to round up to. Defaults to None.
 
-    Examples:
+    :type month: int
+    :param month: Specifies the monthly interval (inside of a year) to round up
+        to. Defaults to None.
+
+    :type week: int
+    :param week: Specifies to round up to the beginning of the next week.
+        Defaults to None and only accepts a possible value of 1.
+
+    :type day: int
+    :param day: Specifies the daily interval to round up to (inside of a
+        month). Defaults to None.
+
+    :type hour: int
+    :param hour: Specifies the hourly interval to round up to (inside of a
+        day). Defaults to None.
+
+    :type minute: int
+    :param minute: Specifies the minute interval to round up to (inside of an
+        hour). Defaults to None.
+
+    :type second: int
+    :param second: Specifies the second interval to round up to (inside of a
+        minute). Defaults to None.
+
+    :type microsecond: int
+    :param microsecond: Specfies the microsecond interval to round up to
+        (inside of a second). Defaults to None.
+
+    :returns: A datetime object that results from ceiling dt to the next
+        interval. The timezone of the returned datetime will be equivalent to
+        the original timezone of dt (or its DST equivalent if a DST border was
+        crossed). If the original datetime object was naive, the returned
+        object is naive.
+
+    :raises: ValueError if the interval is not a valid value.
+
+    Examples::
+
         import datetime
         import pytz
         import fleming
@@ -493,6 +567,7 @@ def ceil(
         # returns the original time
         print fleming.ceil(datetime.datetime(2013, 4, 1), month=1)
         2013-04-01 00:00:00
+
     """
     c_dt = convert_d_to_dt(dt)
 
@@ -521,7 +596,8 @@ def ceil(
 
 def intervals(
         start_dt, td, within_tz=None, stop_dt=None, is_stop_dt_inclusive=False, count=None):
-    """Returns a range of datetime objects with a timedelta interval.
+    """
+    Returns a range of datetime objects with a timedelta interval.
 
     Returns a range of datetime objects starting from start_dt and going in increments of
     timedelta td. If stop_dt is specified, the intervals go to stop_dt (and include
@@ -530,26 +606,39 @@ def intervals(
     stop_dt is None and count is None, a generator will be returned that can yield any
     number of datetime objects.
 
-    Args:
-        start_dt: A naive or aware datetime object from which to start the time intervals.
-            If it is naive, it is assumed to be UTC.
-        td: A timedelta object describing the time interval in the intervals.
-        within_tz: A pytz timezone object. If provided, the intervals will be computed with
-            respect to this timezone.
-        stop_dt: A naive or aware datetime object that specifies the end of the intervals.
-            Defaults to being exclusive in the intervals. If naive, it is assumed to
-            be in UTC.
-        is_stop_dt_inclusive: True if the stop_dt should be included in the time
-            intervals. Defaults to False.
-        count: If set, an integer specifying a count of intervals to use if stop_dt is None.
-            If stop_dt is None and count is None, a generator will be returned that can
-            yield any number of datetime objects.
-    Returns:
-        A generator of datetime objects. The datetime objects are in the original timezone
-        of the start_dt (or its DST equivalent if a border is crossed). If the input is
-        naive, the returned intervals are naive.
+    :type start_dt: datetime
+    :param start_dt: A naive or aware datetime object from which to start the
+        time intervals. If it is naive, it is assumed to be UTC.
 
-    Examples:
+    :type td: timedelta
+    :param td: A timedelta object describing the time interval in the intervals.
+
+    :type within_tz: pytz timezone
+    :param within_tz: A pytz timezone object. If provided, the intervals will
+        be computed with respect to this timezone.
+
+    :type stop_dt: datetime
+    :param stop_dt: A naive or aware datetime object that specifies the end of
+        the intervals. Defaults to being exclusive in the intervals. If naive,
+        it is assumed to be in UTC.
+
+    :type is_stop_dt_inclusive: bool
+    :param is_stop_dt_inclusive: True if the stop_dt should be included in the
+        time intervals. Defaults to False.
+
+    :type count: int
+    :param count: If set, an integer specifying a count of intervals to use if
+        stop_dt is None.
+
+        If stop_dt is None and count is None, a generator will be returned that
+        can yield any number of datetime objects.
+
+    :returns: A generator of datetime objects. The datetime objects are in the
+        original timezone of the start_dt (or its DST equivalent if a border
+        is crossed). If the input is naive, the returned intervals are naive.
+
+    Examples::
+
         import datetime
         import pytz
         import fleming
@@ -653,24 +742,30 @@ def intervals(
 
 
 def unix_time(dt, within_tz=None, return_ms=False):
-    """Converts a datetime object to a unix timestamp.
+    """
+    Converts a datetime object to a unix timestamp.
 
     Converts a naive or aware datetime object to unix timestamp. If within_tz
     is present, the timestamp returned is relative to that time zone.
 
-    Args:
-        dt: A naive or aware datetime object. If it is naive,
-            it is assumed to be UTC.
-        within_tz: A pytz timezone object if the user wishes to
-            return the unix time relative to another timezone.
-        return_ms: A boolean specifying to return the value
-            in milliseconds since the Unix epoch. Defaults to False.
+    :type dt: datetime
+    :param dt: A naive or aware datetime object. If it is naive, it is assumed
+        to be UTC.
 
-    Returns:
-        An integer timestamp since the Unix epoch. If return_ms is
-        True, returns the timestamp in milliseconds.
+    :type within_tz: pytz timezone
+    :param within_tz: A pytz timezone object if the user wishes to return the
+        unix time relative to another timezone.
 
-    Examples:
+    :type return_ms: bool
+    :param return_ms: A boolean specifying to return the value in milliseconds
+        since the Unix epoch. Defaults to False.
+
+    :rtype: int or float
+    :returns: An integer timestamp since the Unix epoch. If return_ms is True,
+        returns the timestamp in milliseconds.
+
+    Examples::
+
         import datetime
         import pytz
         import fleming
@@ -715,6 +810,7 @@ def unix_time(dt, within_tz=None, return_ms=False):
             tzinfo=pytz.timezone('US/Eastern'))
         print dt
         2013-02-01 00:00:00-05:00
+
     """
     # Convert any date input to datetime objects
     c_dt = convert_d_to_dt(dt)

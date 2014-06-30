@@ -1,12 +1,25 @@
+import re
 # import multiprocessing to avoid this bug (http://bugs.python.org/issue15881#msg170215)
 import multiprocessing
 assert multiprocessing
 from setuptools import setup
 
 
+def get_version():
+    """
+    Extracts the version number from the version.py file.
+    """
+    VERSION_FILE = 'fleming/version.py'
+    mo = re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]', open(VERSION_FILE, 'rt').read(), re.M)
+    if mo:
+        return mo.group(1)
+    else:
+        raise RuntimeError('Unable to find version string in {0}.'.format(VERSION_FILE))
+
+
 setup(
     name='fleming',
-    version='0.4',
+    version=get_version(),
     description='Python helpers for manipulating datetime objects relative to time zones',
     long_description='''
         This package contains Fleming, which contains a set of routines for doing datetime
@@ -29,15 +42,15 @@ setup(
         - unix_time: Returns a unix time stamp of a datetime object.
     ''',
     classifiers=[
-      'Topic :: Utilities',
-      'Topic :: Software Development :: Libraries :: Python Modules',
-      'License :: OSI Approved :: MIT License',
-      'Programming Language :: Python :: 2.7',
-      'Programming Language :: Python :: 3.0',
-      'Programming Language :: Python :: 3.1',
-      'Programming Language :: Python :: 3.2',
-      'Programming Language :: Python :: 3.3',
-      'Programming Language :: Python :: 3.4',
+        'Topic :: Utilities',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.0',
+        'Programming Language :: Python :: 3.1',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
     ],
     keywords='python datetime pytz timezone timedelta arithmetic floor conversion',
     url='https://github.com/ambitioninc/fleming',
@@ -45,9 +58,15 @@ setup(
     author_email='wesleykendall@gmail.com',
     license='MIT',
     packages=['fleming'],
-    install_requires=['pytz>=2013.9', 'python-dateutil>=2.2'],
+    install_requires=[
+        'pytz>=2013.9',
+        'python-dateutil>=2.2',
+    ],
+    test_suite='nose.collector',
+    tests_require=[
+        'coverage==3.7.1',
+        'nose>=1.3.0',
+    ],
     include_package_data=True,
     zip_safe=False,
-    test_suite='nose.collector',
-    tests_require=['nose>=1.3.0'],
 )
