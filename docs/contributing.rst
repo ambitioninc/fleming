@@ -35,7 +35,9 @@ For code quality, please run::
 
 Code Styling
 ------------
-Please arrange imports with the following style::
+Please arrange imports with the following style
+
+.. code-block:: python
 
     # Standard library imports
     import os
