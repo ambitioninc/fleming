@@ -1,6 +1,0 @@
-fleming v0.4.1
-==============
-
-Added sphinx documentation and converted all docs to RestructuredText
-
-Docs added by Micah Hauslser

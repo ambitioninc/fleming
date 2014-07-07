@@ -16,26 +16,6 @@ about pytz.
 .. _Sandford Fleming: https://en.wikipedia.org/wiki/Sandford_Fleming
 .. _here: http://pytz.sourceforge.net/
 
-Contents:
-
-.. toctree::
-   :maxdepth: 2
-
-   ref/fleming
-   contributing
-   release_notes/index
-
-Installation
-============
-
-To install the latest release, type::
-
-    pip install fleming
-
-To install the latest code directly from source, type::
-
-    pip install git+git://github.com/ambitioninc/fleming.git
-
 Function Overview
 =================
 

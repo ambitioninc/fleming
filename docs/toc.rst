@@ -5,6 +5,8 @@ Table of Contents
    :maxdepth: 2
 
    index
+   installation
    ref/fleming
    contributing
+   release_notes
    LICENSE
