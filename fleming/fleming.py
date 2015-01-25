@@ -348,7 +348,7 @@ def floor(
         ...     datetime.datetime(2013, 3, 3, 5, tzinfo=pytz.utc), day=1)
         2013-03-03 00:00:00+00:00
 
-        >>> # Peform a floor in EST. The result is in EST
+        >>> # Perform a floor in EST. The result is in EST
         >>> dt = fleming.convert_to_tz(
         ...    datetime.datetime(2013, 3, 4, 6), pytz.timezone('US/Eastern'))
         >>> print dt
