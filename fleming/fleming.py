@@ -348,7 +348,7 @@ def floor(
         ...     datetime.datetime(2013, 3, 3, 5, tzinfo=pytz.utc), day=1)
         2013-03-03 00:00:00+00:00
 
-        >>> # Peform a floor in EST. The result is in EST
+        >>> # Perform a floor in EST. The result is in EST
         >>> dt = fleming.convert_to_tz(
         ...    datetime.datetime(2013, 3, 4, 6), pytz.timezone('US/Eastern'))
         >>> print dt
@@ -826,5 +826,5 @@ def unix_time(dt, within_tz=None, return_ms=False):
     offset = convert_to_tz(c_dt, within_tz).utcoffset().total_seconds() if within_tz else 0
     # Convert the timezone to UTC for arithmetic and make it naive
     c_dt = convert_to_tz(c_dt, pytz.utc).replace(tzinfo=None)
-    unix_time = (c_dt - epoch).total_seconds() + offset
-    return int(unix_time * 1000 if return_ms else unix_time)
+    unix_timestamp = (c_dt - epoch).total_seconds() + offset
+    return int(unix_timestamp * 1000 if return_ms else unix_timestamp)
