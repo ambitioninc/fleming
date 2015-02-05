@@ -1,3 +1,4 @@
+sudo: false
 language: python
 python:
   - '2.7'
@@ -5,8 +6,12 @@ python:
   - '3.3'
   - '3.4'
 install:
-  - pip install flake8 nose>=1.3.0
+  - pip install flake8 nose>=1.3.0 coverage coveralls
+  - pip install -r requirements/docs.txt
   - python setup.py install
 script:
   - flake8 .
   - python setup.py nosetests
+  - python setup.py build_sphinx
+after_success:
+  coveralls

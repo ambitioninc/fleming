@@ -1,6 +1,17 @@
 .. image:: https://travis-ci.org/ambitioninc/fleming.png
    :target: https://travis-ci.org/ambitioninc/fleming
 
+.. image:: https://coveralls.io/repos/ambitioninc/fleming/badge.png
+    :target: https://coveralls.io/r/ambitioninc/fleming
+
+.. image:: https://pypip.in/v/fleming/badge.png
+    :target: https://pypi.python.org/pypi/fleming
+    :alt: Latest PyPI version
+
+.. image:: https://pypip.in/d/fleming/badge.png
+    :target: https://pypi.python.org/pypi/fleming
+    :alt: Number of PyPI downloads
+
 Fleming
 =======
 
