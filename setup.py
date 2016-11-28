@@ -1,8 +1,8 @@
+from setuptools import setup
 import re
 # import multiprocessing to avoid this bug (http://bugs.python.org/issue15881#msg170215)
 import multiprocessing
 assert multiprocessing
-from setuptools import setup
 
 
 def get_version():
@@ -46,9 +46,9 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
     ],
     keywords='python datetime pytz timezone timedelta arithmetic floor conversion',
     url='https://github.com/ambitioninc/fleming',

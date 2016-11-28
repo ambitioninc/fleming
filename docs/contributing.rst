@@ -57,10 +57,8 @@ Building the docs
 
 When in the project directory::
 
-    $ pip uninstall -y fleming && python setup.py install
     $ pip install -r requirements/docs.txt
-    $ cd docs
-    $ make html
+    $ python setup.py build_sphinx
     $ open docs/_build/html/index.html
 
 Release Checklist
@@ -69,9 +67,12 @@ Release Checklist
 Before a new release, please go through the following checklist:
 
 * Bump version in fleming/version.py
-* Git tag the version
 * Add a release note in docs/release_notes.rst
-* Upload to pypi
+* Git tag the version
+* Upload to pypi::
+
+    pip install wheel
+    python setup.py sdist bdist_wheel upload
 
 Vulnerability Reporting
 -----------------------
