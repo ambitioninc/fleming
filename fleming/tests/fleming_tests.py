@@ -352,6 +352,10 @@ class TestFloor(unittest.TestCase):
     """
     Tests the floor function.
     """
+    def test_quarter_floor(self):
+        t = fleming.floor(datetime.datetime(2013, 5, 31), month=3)
+        self.assertEqual(t, datetime.datetime(2013, 4, 1))
+
     def test_floor_month_date(self):
         """
         Tests that the floor funtion works on a date object and returns a date object.

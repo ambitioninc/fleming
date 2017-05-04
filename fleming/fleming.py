@@ -397,14 +397,30 @@ def floor(
         2013-01-01 00:00:00
 
     """
+    # Create a mapping of interval arguments
+    interval_value_map = {
+        'year': year,
+        'month': month,
+        'week': week,
+        'day': day,
+        'hour': hour,
+        'minute': minute,
+        'second': second,
+        'microsecond': microsecond
+    }
+
+    # transform any input date objects to datetime objects
     c_dt = convert_d_to_dt(dt)
 
     # Return naive datetimes if the input is naive
     return_naive = c_dt.tzinfo is None
+
     # Make sure it is aware
     c_dt = attach_tz_if_none(c_dt, pytz.utc)
+
     # Localize it to time_zone if within_tz is specified
     loc_dt = convert_to_tz(c_dt, within_tz) if within_tz else c_dt
+
     # Keep a copy of the original value for later use
     orig_dt = loc_dt
 
@@ -413,8 +429,10 @@ def floor(
     interval_starts = (
         ('year', 0), ('month', 1), ('day', 1), ('hour', 0), ('minute', 0), ('second', 0), ('microsecond', 0)
     )
+
     # Initialize the index of the biggest_interval from which to start the floor
     biggest_interval_i = 0
+
     # Marks if a non-None floor has been seen
     floor_seen = False
 
@@ -432,6 +450,17 @@ def floor(
             # Make the time be the starting of a week (Monday)
             loc_dt -= datetime.timedelta(days=loc_dt.weekday())
 
+    # initialize a dict to hold new time state
+    new_kwargs = dict(
+        year=loc_dt.year,
+        month=loc_dt.month,
+        day=loc_dt.day,
+        hour=loc_dt.hour,
+        minute=loc_dt.minute,
+        second=loc_dt.second,
+        microsecond=loc_dt.microsecond,
+    )
+
     # Starting at the largest time interval, do the following:
     # - if a non-None floor value has not been seen and the floor value is None, populate the result
     #   time with the value from the input
@@ -439,14 +468,15 @@ def floor(
     # - if a non-None floor has been seen and the floor valye is None, populate the result with the
     #   first time for an floor interval
     for interval, start in interval_starts[biggest_interval_i:]:
-        if locals()[interval] is None and floor_seen:
-            loc_dt = loc_dt.replace(**{interval: start})
-        elif locals()[interval] is not None:
+        if interval_value_map[interval] is None and floor_seen:
+            new_kwargs[interval] = start
+        elif interval_value_map[interval] is not None:
             floor_seen = True
-            interval_val = getattr(loc_dt, interval)
-            loc_dt = loc_dt.replace(**{
-                interval: interval_val - ((interval_val - start) % locals()[interval])
-            })
+            interval_val = new_kwargs[interval]
+            new_kwargs[interval] = interval_val - ((interval_val - start) % interval_value_map[interval])
+
+    # transfer time state to datetime object
+    loc_dt = loc_dt.replace(**new_kwargs)
 
     # Add any additional deltas within the proper timezone. This is currently only used by the ceil
     # function and is not user facing. Only add the extra td if the floored result is different than
