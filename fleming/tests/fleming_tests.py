@@ -352,6 +352,10 @@ class TestFloor(unittest.TestCase):
     """
     Tests the floor function.
     """
+    def test_quarter_floor(self):
+        t = fleming.floor(datetime.datetime(2013, 5, 31), month=3)
+        self.assertEqual(t, datetime.datetime(2013, 4, 1))
+
     def test_floor_month_date(self):
         """
         Tests that the floor funtion works on a date object and returns a date object.
@@ -781,7 +785,7 @@ class TestUnixTime(unittest.TestCase):
         self.assertEquals(ret, 1385856000)
         # Convert it back to a datetime objects. The values should be for midnight
         # since it was an EST time
-        t = datetime.datetime.fromtimestamp(ret)
+        t = datetime.datetime.utcfromtimestamp(ret)
         self.assertEquals(t.hour, 0)
         self.assertEquals(t.day, 1)
 
@@ -796,7 +800,7 @@ class TestUnixTime(unittest.TestCase):
         self.assertEquals(ret, 1385856000)
         # Convert it back to a datetime objects. The values should be for midnight
         # since it was an EST time
-        t = datetime.datetime.fromtimestamp(ret)
+        t = datetime.datetime.utcfromtimestamp(ret)
         self.assertEquals(t.hour, 0)
         self.assertEquals(t.day, 1)
 
@@ -811,7 +815,7 @@ class TestUnixTime(unittest.TestCase):
         self.assertEquals(ret, 1385856000 * 1000)
         # Convert it back to a datetime objects. The values should be for midnight
         # since it was an EST time
-        t = datetime.datetime.fromtimestamp(ret / 1000)
+        t = datetime.datetime.utcfromtimestamp(ret / 1000)
         self.assertEquals(t.hour, 0)
         self.assertEquals(t.day, 1)
 
