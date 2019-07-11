@@ -4,11 +4,11 @@
 .. image:: https://coveralls.io/repos/ambitioninc/fleming/badge.png
     :target: https://coveralls.io/r/ambitioninc/fleming
 
-.. image:: https://pypip.in/v/fleming/badge.png
+.. image:: https://img.shields.io/pypi/v/fleming.svg
     :target: https://pypi.python.org/pypi/fleming
     :alt: Latest PyPI version
 
-.. image:: https://pypip.in/d/fleming/badge.png
+.. image:: https://img.shields.io/pypi/dm/fleming.svg
     :target: https://pypi.python.org/pypi/fleming
     :alt: Number of PyPI downloads
 
