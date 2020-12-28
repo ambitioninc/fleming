@@ -62,7 +62,7 @@ setup(
     ],
     test_suite='nose.collector',
     tests_require=[
-        'coverage==3.7.1',
+        'coverage>=3.7.1',
         'nose>=1.3.0',
     ],
     include_package_data=True,
