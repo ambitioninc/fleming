@@ -1,5 +1,5 @@
+setuptools==58.5.3
 flake8
 nose
 coverage
 coveralls
-docopt==0.6.1
