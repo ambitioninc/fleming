@@ -13,5 +13,5 @@ script:
   - flake8 .
   - python setup.py nosetests
   - python setup.py build_sphinx
-after_success:
-  coveralls
+#after_success:
+#  coveralls
