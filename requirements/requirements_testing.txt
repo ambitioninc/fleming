@@ -1,4 +1,4 @@
 flake8
 nose
 coverage
-#coveralls
+#coveralls # this fails to install on python 3.7 so leaving it out for now

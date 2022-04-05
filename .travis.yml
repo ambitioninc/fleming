@@ -3,8 +3,8 @@ sudo: false
 language: python
 python:
   - '3.7'
-#  - '3.8'
-#  - '3.9'
+  - '3.8'
+  - '3.9'
 install:
   - pip install -r requirements/requirements_testing.txt
   - pip install -r requirements/docs.txt
@@ -14,4 +14,4 @@ script:
   - python setup.py nosetests
   - python setup.py build_sphinx
 #after_success:
-#  coveralls
+#  coveralls # this is commented out because it fails to install on python 3.7
