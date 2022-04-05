@@ -6,6 +6,7 @@ python:
   - '3.8'
   - '3.9'
 install:
+  - pip install setuptools -U
   - pip install -r requirements/requirements.txt
   - pip install -r requirements/docs.txt
   - python setup.py install
