@@ -2,17 +2,16 @@ dist: xenial
 sudo: false
 language: python
 python:
-  - '3.5'
-  - '3.6'
   - '3.7'
   - '3.8'
+  - '3.9'
 install:
-  - pip install flake8 nose>=1.3.0 coverage coveralls
+  - pip install -r requirements/requirements_testing.txt
   - pip install -r requirements/docs.txt
   - python setup.py install
 script:
   - flake8 .
   - python setup.py nosetests
   - python setup.py build_sphinx
-after_success:
-  coveralls
+#after_success:
+#  coveralls # this is commented out because it fails to install on python 3.7
