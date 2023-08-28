@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+v0.7.1
+------
+* Read the Docs config file v2
+
 v0.7.0
 ------
 * Add support for python 3.9, 3.10
